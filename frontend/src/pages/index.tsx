@@ -6,6 +6,7 @@ import Card from "@/components/Card";
 import Logo from "@/components/home/Logo";
 import Contents from "@/components/home/Contents";
 import CoinInfo from "@/components/home/CoinInfo";
+import { Head } from "next/document";
 
 export default function Home() {
   const { user, login, logout, authenticateUser } = useAuth();
@@ -23,17 +24,19 @@ export default function Home() {
   }, [divRef]);
 
   return (
-    <div
-      className="relative w-screen min-h-screen h-full flex items-center justify-center bg-white overflow-y-scroll"
-      ref={divRef}
-    >
-      {scale && (
-        <div className="w-[85%] xs:w-[320px] sm:w-[360px] md:w-[420px] h-full mt-24 pb-5 flex flex-col items-center justify-center">
-          <Logo scale={scale} />
-          <Contents />
-        </div>
-      )}
-      <CoinInfo />
-    </div>
+    <>
+      <div
+        className="relative w-screen min-h-screen h-full flex items-center justify-center bg-white overflow-y-scroll"
+        ref={divRef}
+      >
+        {scale && (
+          <div className="w-[85%] xs:w-[320px] sm:w-[360px] md:w-[420px] h-full mt-24 pb-5 flex flex-col items-center justify-center">
+            <Logo scale={scale} />
+            <Contents />
+          </div>
+        )}
+        <CoinInfo />
+      </div>
+    </>
   );
 }

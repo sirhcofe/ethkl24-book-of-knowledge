@@ -5,15 +5,12 @@ import { motion, useAnimation } from "framer-motion";
 import Card from "../Card";
 import * as Progress from "@radix-ui/react-progress";
 import { useSearchParams } from "next/navigation";
-import {
-  getPlayGameResult,
-  getPromptResult,
-  getPromptUpdated,
-} from "@/graphql/getPrompt";
+import { getPlayGameResult } from "@/graphql/getPrompt";
 import { generateQuestion } from "@/utils/contractMethods";
 import { useAuth } from "@/hooks/hooks";
 import { parsePrompt } from "@/utils/parsePrompt";
 import { questionGenerate } from "@/utils/questionGenerator";
+import { calculateKnowledgeTokenDistribution } from "@/utils/calculateKnowledgeTokenDistribution";
 
 const mockQuestion = {
   question: "why are you gae",
@@ -41,10 +38,10 @@ const Questions = () => {
   const [currentGameIndex, setCurrentGameIndex] = useState<number>();
   const [startTime, setStartTime] = useState(0);
   const [historyQuestions, setHistoryQuestions] = useState<string[]>([]);
-
+  const [questionTimeLeft, setQuestionTimeLeft] = useState(0);
   const txHash = useSearchParams().get("hash");
   const subject = useSearchParams().get("subject");
-
+  const questionDuration: number = 18;
   const questions: { [key: string]: string } = {
     geography:
       "give me one 4 choices MCQ question on the subject geography with answer.",
@@ -52,6 +49,30 @@ const Questions = () => {
 
   const contractAddresses: { [key: string]: string } = {
     geography: process.env.NEXT_PUBLIC_BOKWGEO_CA as string,
+  };
+
+  const AnimatedNumber = ({ num }: { num: number }) => {
+    const [animate, setAnimate] = useState(false);
+
+    useEffect(() => {
+      // Trigger the animation whenever the number changes
+      setAnimate(true);
+      const timer = setTimeout(() => setAnimate(false), 300); // Reset after the animation
+      return () => clearTimeout(timer);
+    }, [num]);
+
+    return (
+      <motion.div
+        animate={{
+          scale: animate ? 1.5 : 1, // Scale up briefly
+          color: animate ? "#00ff00" : "#000000", // Turn green briefly
+        }}
+        transition={{ duration: 0.3 }}
+        style={{ fontSize: "2rem" }} // Customize font size
+      >
+        {num}
+      </motion.div>
+    );
   };
 
   useEffect(() => {
@@ -99,6 +120,16 @@ const Questions = () => {
 
   useEffect(() => {
     console.log("result updated", result);
+    if (result === true) {
+      const currentTime = Date.now();
+      const elapsedTime = (currentTime - startTime) / 1000;
+      const remainingTime = questionDuration - elapsedTime;
+      console.log("Current Time", currentTime);
+      console.log("Elapsed Time", elapsedTime);
+      console.log("Remaining Time", remainingTime);
+      setQuestionTimeLeft(remainingTime + questionTimeLeft);
+      console.log("Question time left", questionTimeLeft);
+    }
   }, [result]);
 
   /****************** handle question timer and answer logic ******************/
@@ -114,8 +145,8 @@ const Questions = () => {
     controls.stop();
     const currentTime = Date.now();
     const elapsedTime = (currentTime - startTime) / 1000;
-    const remainingTime = 13 - elapsedTime;
-    return parseFloat((remainingTime / 13).toFixed(3));
+    const remainingTime = questionDuration - elapsedTime;
+    return parseFloat((remainingTime / questionDuration).toFixed(3));
   };
 
   // start the timer
@@ -200,7 +231,7 @@ const Questions = () => {
                 <motion.div
                   initial={{ width: "100%" }}
                   animate={controls}
-                  transition={{ duration: 13, ease: "linear" }}
+                  transition={{ duration: questionDuration, ease: "linear" }}
                   className="h-full rounded-full bg-gradient-to-r from-[#DB504A] to-[#E3B505] overflow-hidden"
                   onAnimationComplete={() => {
                     if (result === null) setResult(false);
@@ -209,6 +240,16 @@ const Questions = () => {
               </Progress.Root>
             </div>
           </div>
+          <p className="font-chewy text-base sm:text-lg md:text-xl text-black text-center">
+            <AnimatedNumber
+              num={calculateKnowledgeTokenDistribution(
+                questionDuration * 3,
+                questionTimeLeft,
+                50
+              )}
+            />
+            {"tokens"}
+          </p>
           {result !== null ? (
             result ? (
               <Card className="w-[660px] max-w-[90%] py-4 px-4 sm:px-7 md:px-10 bg-mnGreen flex flex-col space-y-3">
@@ -239,7 +280,6 @@ const Questions = () => {
               </p>
             </Card>
           )}
-
           <div className="relative w-[660px] max-w-[90%] flex space-x-3">
             <Card
               className={`flex-1 py-2 ${
@@ -302,15 +342,27 @@ const Questions = () => {
           </div>
         </motion.div>
       ) : (
-        <motion.div
-          key="loading"
-          className="w-screen h-screen flex items-center justify-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <LoadingAnimation size="lg" />
-        </motion.div>
+        <>
+          <p className="font-chewy text-base sm:text-lg md:text-xl text-black text-center">
+            <AnimatedNumber
+              num={calculateKnowledgeTokenDistribution(
+                questionDuration * 3,
+                questionTimeLeft,
+                50
+              )}
+            />
+            {"tokens"}
+          </p>
+          <motion.div
+            key="loading"
+            className="w-screen h-screen flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <LoadingAnimation size="lg" />
+          </motion.div>
+        </>
       )}
     </>
   );

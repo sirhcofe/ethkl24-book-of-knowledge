@@ -8,15 +8,21 @@ export default function Game() {
   const [isInitial, setIsInitial] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
 
+  const [coinsEarned, setCoinsEarned] = useState(0);
+
   return (
     <div className="w-screen h-screen overflow-hidden items-center justify-center">
       <AnimatePresence>
         {isInitial ? (
           <HowToPlay setter={() => setIsInitial(false)} />
         ) : (
-          <Questions setIsEnd={() => setIsEnd(true)} />
+          <Questions
+            setIsEnd={() => setIsEnd(true)}
+            coinsEarned={coinsEarned}
+            setCoinsEarned={setCoinsEarned}
+          />
         )}
-        {isEnd && <PostGame />}
+        {isEnd && <PostGame coinsEarned={coinsEarned} />}
       </AnimatePresence>
     </div>
   );

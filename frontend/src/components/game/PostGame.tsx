@@ -11,8 +11,51 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import LeaderboardAnimation from "./LeaderboardAnimation";
 import Image from "next/image";
 import pepe from "@/../public/assets/pepe.png";
+import { useState, useEffect } from "react";
 
-const PostGame = () => {
+const AnimatedNumber = ({ num }: { num: number }) => {
+  const [animate, setAnimate] = useState(false);
+
+  useEffect(() => {
+    setAnimate(true);
+    const timer = setTimeout(() => setAnimate(false), 300);
+    return () => clearTimeout(timer);
+  }, [num]);
+
+  return (
+    <motion.div
+      initial={{ scale: 1, color: "#000000" }}
+      animate={
+        num >= 50
+          ? {
+              scale: [1, 1.2, 1.2, 1],
+              color: ["#000000", "#00ff00", "#00ff00", "#000000"],
+            }
+          : {
+              scale: [1, 1.2, 1.2, 1],
+              color: ["#000000", "#DC2626", "#DC2626", "#000000"],
+            }
+      }
+      transition={
+        num >= 50
+          ? {
+              duration: 0.5,
+              times: [0, 0.33, 0.66, 1],
+              delay: 3,
+            }
+          : {
+              duration: 0.5,
+              times: [0, 0.33, 0.66, 1],
+              delay: 2,
+            }
+      }
+    >
+      <p className="font-chewy text-3xl">{num}</p>
+    </motion.div>
+  );
+};
+
+const PostGame = ({ coinsEarned }: { coinsEarned: number }) => {
   const subject = useSearchParams().get("subject");
   const router = useRouter();
 
@@ -34,10 +77,13 @@ const PostGame = () => {
         <p className="font-chewy text-black text-2xl sm:text-3xl md:text-4xl">
           Book of Knowledge
         </p>
-        <div className="flex items-center justify-center">
-          <p className="text-black pt-1 text-xl">
-            You earned <span className="font-bold">60 coins!</span>
-          </p>
+        <div className="flex items-center justify-center space-x-2">
+          {coinsEarned > 50 ? (
+            <p className="text-black pt-1 text-xl">You earned </p>
+          ) : (
+            <p className="text-black pt-1 text-xl">You lost </p>
+          )}
+          <AnimatedNumber num={coinsEarned} />
           {subject === "geography" && (
             <FontAwesomeIcon icon={faMap} size="2x" />
           )}
@@ -51,7 +97,7 @@ const PostGame = () => {
             <FontAwesomeIcon icon={faCity} size="2x" />
           )}
         </div>
-        <LeaderboardAnimation win={false} />
+        <LeaderboardAnimation win={coinsEarned >= 50} />
         <Card
           className="w-fit mt-5 py-2 px-4 cursor-pointer bg-mnGreen"
           onClick={() => router.replace("/")}

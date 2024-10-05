@@ -14,11 +14,13 @@ import toast from "react-hot-toast";
 import RPC from "@/utils/ethersRPC";
 import { ethers } from "ethers";
 import {
-  createSmartAccountClient,
-  BiconomySmartAccountV2,
-  IPaymaster,
-  createPaymaster,
-} from "@biconomy/account";
+  createPublicClient,
+  createWalletClient,
+  custom,
+  PublicClient,
+  WalletClient,
+} from "viem";
+import { mantaSepoliaTestnet } from "viem/chains";
 
 // const biconomyConfig = {
 //   biconomyPaymasterApiKey: import.meta.env.VITE_BICONOMY_PAYMASTER_API_KEY,
@@ -32,6 +34,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [web3AuthProvider, setWeb3AuthProvider] = useState<IProvider | null>(
     null
   );
+  const [viemPublicClient, setViemPublicClient] = useState<PublicClient>();
+  const [viemWalletClient, setViemWalletClient] = useState<WalletClient>();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<Partial<AuthUserInfo>>();
@@ -167,18 +171,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const user = await getUserInfo();
     setUser(user);
     const address = await RPC.getAccounts(provider);
-    // Ethers and paymaster setup
-    const ethersProvider = new ethers.providers.Web3Provider(provider);
-    const paymaster: IPaymaster = await createPaymaster({
-      paymasterUrl: `https://paymaster.biconomy.io/api/v1/3441005/${process.env.NEXT_PUBLIC_PAYMASTER_API}`,
+    const pClient = createPublicClient({
+      chain: mantaSepoliaTestnet,
+      transport: custom(web3AuthProvider!),
     });
-
-    // Create smart account
-    // const smartWallet = await createSmartAccountClient({
-    //   signer: ethersProvider.getSigner(),
-    //   biconomyPaymasterApiKey: process.env.NEXT_PUBLIC_PAYMASTER_API || "",
-    //   bundleUrl: biconomy,
-    // });
+    setViemPublicClient(pClient);
+    const wClient = createWalletClient({
+      chain: mantaSepoliaTestnet,
+      transport: custom(web3AuthProvider!),
+    });
+    setViemWalletClient(wClient);
   };
 
   const logout = async () => {
@@ -201,6 +203,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         login,
         logout,
         authenticateUser,
+        viemPublicClient,
+        viemWalletClient,
       }}
     >
       {children}

@@ -13,6 +13,7 @@ import {
 import { generateQuestion } from "@/utils/contractMethods";
 import { useAuth } from "@/hooks/hooks";
 import { parsePrompt } from "@/utils/parsePrompt";
+import { questionGenerate } from "@/utils/questionGenerator";
 
 const mockQuestion = {
   question: "why are you gae",
@@ -35,6 +36,9 @@ const Questions = () => {
   const [selectedAns, setSelectedAns] = useState("");
   const [result, setResult] = useState<boolean | null>(null);
   const [currentGameIndex, setCurrentGameIndex] = useState<number>();
+  const [nextPromptObj, setNextPromptObj] = useState<Prompt | undefined>(
+    undefined
+  );
 
   const txHash = useSearchParams().get("hash");
   const subject = useSearchParams().get("subject");
@@ -66,33 +70,38 @@ const Questions = () => {
         await delay(1000);
       }
       setCurrentGameIndex(playGameRes.gameIndex);
-      const genQuestionHash = await generateQuestion(
+      // const genQuestionHash = await generateQuestion(
+      //   viemWalletClient!,
+      //   viemPublicClient!,
+      //   playGameRes.gameIndex,
+      //   questions[subject]
+      // );
+      // while (!promptRequest) {
+      //   console.log("genQuestionHash", genQuestionHash);
+      //   promptRequest = await getPromptResult(genQuestionHash);
+      //   console.log("promptRequest", promptRequest);
+
+      //   await delay(1000);
+      // }
+      // while (!output) {
+      //   console.log(
+      //     `getPromptUpdated(${promptRequest.requestId}, ${contractAddresses[subject]})`
+      //   );
+      //   const promtRes = await getPromptUpdated(
+      //     promptRequest.requestId,
+      //     contractAddresses[subject]
+      //   );
+      //   if (promtRes) output = promtRes.output;
+
+      //   await delay(1000);
+      // }
+
+      const promptInfo = await questionGenerate(
         viemWalletClient!,
         viemPublicClient!,
         playGameRes.gameIndex,
-        questions[subject]
+        subject
       );
-      while (!promptRequest) {
-        console.log("genQuestionHash", genQuestionHash);
-        promptRequest = await getPromptResult(genQuestionHash);
-        console.log("promptRequest", promptRequest);
-
-        await delay(1000);
-      }
-      while (!output) {
-        console.log(
-          `getPromptUpdated(${promptRequest.requestId}, ${contractAddresses[subject]})`
-        );
-        const promtRes = await getPromptUpdated(
-          promptRequest.requestId,
-          contractAddresses[subject]
-        );
-        if (promtRes) output = promtRes.output;
-
-        await delay(1000);
-      }
-
-      const promptInfo = parsePrompt(output);
       setPromptObj(promptInfo);
     };
 
@@ -119,7 +128,20 @@ const Questions = () => {
   }, []);
 
   useEffect(() => {
-    if (promptObj !== undefined) controls.start({ width: "0%" });
+    if (!txHash || !subject) return;
+    if (promptObj === undefined) return;
+    controls.start({ width: "0%" });
+    if (questionNum >= 3) return;
+    const initNextPrompt = async () => {
+      const promptInfo = await questionGenerate(
+        viemWalletClient!,
+        viemPublicClient!,
+        currentGameIndex as number,
+        subject
+      );
+      setNextPromptObj(promptInfo);
+    };
+    initNextPrompt();
   }, [promptObj]);
 
   const handleClick = (click: string) => {

@@ -6,22 +6,9 @@ import Card from "../Card";
 import * as Progress from "@radix-ui/react-progress";
 import { useSearchParams } from "next/navigation";
 import { getPlayGameResult } from "@/graphql/getPrompt";
-import { generateQuestion } from "@/utils/contractMethods";
 import { useAuth } from "@/hooks/hooks";
-import { parsePrompt } from "@/utils/parsePrompt";
 import { questionGenerate } from "@/utils/questionGenerator";
 import { calculateKnowledgeTokenDistribution } from "@/utils/calculateKnowledgeTokenDistribution";
-
-const mockQuestion = {
-  question: "why are you gae",
-  choices: {
-    a: "skibidi toilet",
-    b: "rizz",
-    c: "HELP ME",
-    d: "amboutokum",
-  },
-  answer: "a",
-} as Prompt;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -42,14 +29,6 @@ const Questions = ({ setIsEnd }: { setIsEnd: () => void }) => {
   const txHash = useSearchParams().get("hash");
   const subject = useSearchParams().get("subject");
   const questionDuration: number = 18;
-  const questions: { [key: string]: string } = {
-    geography:
-      "give me one 4 choices MCQ question on the subject geography with answer.",
-  };
-
-  const contractAddresses: { [key: string]: string } = {
-    geography: process.env.NEXT_PUBLIC_BOKWGEO_CA as string,
-  };
 
   const AnimatedNumber = ({ num }: { num: number }) => {
     const [animate, setAnimate] = useState(false);

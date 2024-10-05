@@ -48,7 +48,7 @@ const Contents = () => {
             >
               <motion.div className="flex flex-1">
                 <Card
-                  className="w-full py-4 bg-mnGreen flex items-center justify-center cursor-pointer"
+                  className="w-full py-2 sm:py-3 md:py-4 bg-mnGreen flex items-center justify-center cursor-pointer"
                   onClick={() => setShowSubject(true)}
                 >
                   <p className="font-chewy text-3xl sm:text-4xl md:text-[42px] text-white text-center">
@@ -105,7 +105,7 @@ const Contents = () => {
           variants={containerVariant}
         >
           <motion.div
-            className="font-poppins font-medium text-lg sm:text-xl md:text-[22px] text-black"
+            className="font-medium text-lg sm:text-xl md:text-[22px] text-black"
             variants={childVariant}
           >
             Pick a subject to play!

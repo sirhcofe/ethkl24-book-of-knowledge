@@ -33,7 +33,7 @@ export default function Home() {
           <Contents />
         </div>
       )}
-      <CoinInfo />
+      {user && <CoinInfo />}
     </div>
   );
 }

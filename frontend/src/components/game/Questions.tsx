@@ -13,6 +13,7 @@ import {
 import { generateQuestion } from "@/utils/contractMethods";
 import { useAuth } from "@/hooks/hooks";
 import { parsePrompt } from "@/utils/parsePrompt";
+import { questionGenerate } from "@/utils/questionGenerator";
 
 const mockQuestion = {
   question: "why are you gae",
@@ -39,6 +40,7 @@ const Questions = () => {
   const [result, setResult] = useState<boolean | null>(null);
   const [currentGameIndex, setCurrentGameIndex] = useState<number>();
   const [startTime, setStartTime] = useState(0);
+  const [historyQuestions, setHistoryQuestions] = useState<string[]>([]);
 
   const txHash = useSearchParams().get("hash");
   const subject = useSearchParams().get("subject");
@@ -56,43 +58,22 @@ const Questions = () => {
     if (!txHash || !subject) return;
 
     const initGame = async () => {
-      let output: string = "";
       let playGameRes = undefined;
-      let promptRequest = undefined;
       while (!playGameRes) {
         playGameRes = await getPlayGameResult(txHash);
         console.log("playGameRes", playGameRes);
 
-        await delay(1000);
+        await delay(2500);
       }
       setCurrentGameIndex(playGameRes.gameIndex);
-      const genQuestionHash = await generateQuestion(
+      const promptInfo = await questionGenerate(
         viemWalletClient!,
         viemPublicClient!,
         playGameRes.gameIndex,
-        questions[subject]
+        subject,
+        []
       );
-      while (!promptRequest) {
-        console.log("genQuestionHash", genQuestionHash);
-        promptRequest = await getPromptResult(genQuestionHash);
-        console.log("promptRequest", promptRequest);
-
-        await delay(1000);
-      }
-      while (!output) {
-        console.log(
-          `getPromptUpdated(${promptRequest.requestId}, ${contractAddresses[subject]})`
-        );
-        const promtRes = await getPromptUpdated(
-          promptRequest.requestId,
-          contractAddresses[subject]
-        );
-        if (promtRes) output = promtRes.output;
-
-        await delay(1000);
-      }
-
-      const promptInfo = parsePrompt(output);
+      setHistoryQuestions([promptInfo.question]);
       setPromptObj(promptInfo);
     };
 
@@ -116,6 +97,10 @@ const Questions = () => {
     };
   }, []);
 
+  useEffect(() => {
+    console.log("result updated", result);
+  }, [result]);
+
   /****************** handle question timer and answer logic ******************/
 
   // get start time and start timer animation
@@ -135,16 +120,36 @@ const Questions = () => {
 
   // start the timer
   useEffect(() => {
-    if (promptObj !== undefined) startAnimation();
+    if (!txHash || !subject) return;
+    if (promptObj === undefined) return;
+    startAnimation();
+    if (questionNum >= 3) return;
+    const initNextPrompt = async () => {
+      const promptInfo = await questionGenerate(
+        viemWalletClient!,
+        viemPublicClient!,
+        currentGameIndex as number,
+        subject,
+        historyQuestions
+      );
+      setHistoryQuestions((prev) => [...prev, promptInfo.question]);
+      setNextPromptObj(promptInfo);
+    };
+    initNextPrompt();
   }, [promptObj]);
 
   // handle choice click
   const handleClick = (click: string) => {
     if (result !== null) return;
     const remainingTimePct = stopAnimation();
+    console.log("timer", remainingTimePct);
     setSelectedAns(click);
-    console.log(`${click} === ${promptObj?.answer.toLowerCase()}`);
+    console.log(
+      `${click} === ${promptObj?.answer.toLowerCase()}`,
+      click.toLowerCase() === promptObj?.answer.toLowerCase()
+    );
     if (click.toLowerCase() === promptObj?.answer.toLowerCase()) {
+      console.log("setting to true");
       setResult(true);
     } else {
       setResult(false);
@@ -161,6 +166,7 @@ const Questions = () => {
         setQuestionNum(questionNum + 1);
         setSelectedAns("");
         setResult(null);
+        console.log("Reseting states");
       }, 4000);
     }
   }, [result]);
@@ -196,31 +202,44 @@ const Questions = () => {
                   animate={controls}
                   transition={{ duration: 13, ease: "linear" }}
                   className="h-full rounded-full bg-gradient-to-r from-[#DB504A] to-[#E3B505] overflow-hidden"
-                  onAnimationComplete={() => setResult(false)}
+                  onAnimationComplete={() => {
+                    if (result === null) setResult(false);
+                  }}
                 />
               </Progress.Root>
             </div>
           </div>
-          <Card
-            className={`w-[660px] max-w-[90%] py-4 px-4 sm:px-7 md:px-10 ${
-              result !== null
-                ? result
-                  ? "bg-mnGreen"
-                  : "bg-jasper"
-                : "bg-saffron"
-            } flex flex-col space-y-3`}
-          >
-            <p className="font-chewy text-base sm:text-lg md:text-xl text-black text-center">
-              Question {questionNum}
-            </p>
-            <p className="font-chewy text-lg sm:text-xl md:text-2xl text-black text-center">
-              {result !== null
-                ? result
-                  ? "Correct!"
-                  : `Answer: ${promptObj.choices[promptObj.answer]}`
-                : promptObj.question}
-            </p>
-          </Card>
+          {result !== null ? (
+            result ? (
+              <Card className="w-[660px] max-w-[90%] py-4 px-4 sm:px-7 md:px-10 bg-mnGreen flex flex-col space-y-3">
+                <p className="font-chewy text-base sm:text-lg md:text-xl text-black text-center">
+                  Question {questionNum}
+                </p>
+                <p className="font-chewy text-lg sm:text-xl md:text-2xl text-black text-center">
+                  Correct!
+                </p>
+              </Card>
+            ) : (
+              <Card className="w-[660px] max-w-[90%] py-4 px-4 sm:px-7 md:px-10 bg-jasper flex flex-col space-y-3">
+                <p className="font-chewy text-base sm:text-lg md:text-xl text-black text-center">
+                  Question {questionNum}
+                </p>
+                <p className="font-chewy text-lg sm:text-xl md:text-2xl text-black text-center">
+                  Answer: {promptObj.choices[promptObj.answer]}
+                </p>
+              </Card>
+            )
+          ) : (
+            <Card className="w-[660px] max-w-[90%] py-4 px-4 sm:px-7 md:px-10 bg-saffron flex flex-col space-y-3">
+              <p className="font-chewy text-base sm:text-lg md:text-xl text-black text-center">
+                Question {questionNum}
+              </p>
+              <p className="font-chewy text-lg sm:text-xl md:text-2xl text-black text-center">
+                {promptObj.question}
+              </p>
+            </Card>
+          )}
+
           <div className="relative w-[660px] max-w-[90%] flex space-x-3">
             <Card
               className={`flex-1 py-2 ${

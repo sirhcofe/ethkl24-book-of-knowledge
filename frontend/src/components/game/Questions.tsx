@@ -1,8 +1,9 @@
 import { Prompt } from "@/types/prompt";
 import { useEffect, useState } from "react";
 import LoadingAnimation from "../LoadingAnimation";
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
 import Card from "../Card";
+import * as Progress from "@radix-ui/react-progress";
 
 const mockQuestion = {
   question: "why are you gae",
@@ -16,19 +17,43 @@ const mockQuestion = {
 } as Prompt;
 
 const Questions = () => {
+  const controls = useAnimation();
   const [promptObj, setPromptObj] = useState<Prompt | undefined>(undefined);
   const [questionNum, setQuestionNum] = useState(1);
   const [selectedAns, setSelectedAns] = useState("");
   const [result, setResult] = useState<boolean | null>(null);
 
+  /**
+   * TODO: REMOVE ONCE WE CAN GET PROMPT DATA FROM SC
+   */
   useEffect(() => {
     setTimeout(() => {
       setPromptObj(mockQuestion);
     }, 1000);
   }, []);
 
+  useEffect(() => {
+    const handleBeforeUnload = (event: any) => {
+      const message =
+        "Are you sure you want to leave? You will lose your progress!";
+      event.returnValue = message;
+      return message;
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (promptObj !== undefined) controls.start({ width: "0%" });
+  }, [promptObj]);
+
   const handleClick = (click: string) => {
     if (result !== null) return;
+    controls.stop();
     setSelectedAns(click);
     if (click === promptObj?.answer) {
       setResult(true);
@@ -44,7 +69,8 @@ const Questions = () => {
         setQuestionNum(questionNum + 1);
         setSelectedAns("");
         setResult(null);
-      }, 3000);
+        // Call SC here to get next question?
+      }, 4000);
     }
   }, [result]);
 
@@ -58,6 +84,19 @@ const Questions = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
+          <div className="w-[660px] h-fit flex flex-col rounded-full p-[2px]">
+            <div className="w-full bg-background rounded-full p-1">
+              <Progress.Root className="relative w-full h-2 rounded-full bg-[#3f414e] overflow-hidden">
+                <motion.div
+                  initial={{ width: "100%" }}
+                  animate={controls}
+                  transition={{ duration: 13, ease: "linear" }}
+                  className="h-full rounded-full bg-gradient-to-r from-[#DB504A] to-[#E3B505] overflow-hidden"
+                  onAnimationComplete={() => setResult(false)}
+                />
+              </Progress.Root>
+            </div>
+          </div>
           <Card
             className={`w-[660px] max-w-[90%] py-4 px-4 sm:px-7 md:px-10 ${
               result !== null

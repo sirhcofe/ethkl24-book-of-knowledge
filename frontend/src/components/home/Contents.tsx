@@ -151,7 +151,7 @@ const Contents = () => {
             >
               <Card
                 className="bg-saffron w-full py-2"
-                onClick={() => setSelectedModal("geography")}
+                // onClick={() => setSelectedModal("geography")}
               >
                 <p className="font-chewy text-2xl sm:text-3xl md:text-4xl text-black text-center">
                   Geography
@@ -205,7 +205,7 @@ const Contents = () => {
 
       {selectedModal && (
         <motion.div
-          className="absolute top-0 left-0 z-30 w-screen h-screen flex items-center justify-center bg-black/80"
+          className="absolute top-0 left-0 z-30 w-screen min:h-screen h-full flex items-center justify-center bg-black/80"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >

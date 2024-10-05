@@ -13,15 +13,16 @@ export default function Game() {
   return (
     <div className="w-screen h-screen overflow-hidden items-center justify-center">
       <AnimatePresence>
-        {isInitial ? (
-          <HowToPlay setter={() => setIsInitial(false)} />
-        ) : (
-          <Questions
-            setIsEnd={() => setIsEnd(true)}
-            coinsEarned={coinsEarned}
-            setCoinsEarned={setCoinsEarned}
-          />
-        )}
+        {!isEnd &&
+          (isInitial ? (
+            <HowToPlay setter={() => setIsInitial(false)} />
+          ) : (
+            <Questions
+              setIsEnd={() => setIsEnd(true)}
+              coinsEarned={coinsEarned}
+              setCoinsEarned={setCoinsEarned}
+            />
+          ))}
         {isEnd && <PostGame coinsEarned={coinsEarned} />}
       </AnimatePresence>
     </div>

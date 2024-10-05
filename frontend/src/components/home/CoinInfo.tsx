@@ -63,7 +63,7 @@ const CoinInfo = () => {
   };
 
   return (
-    <div className="absolute z-20 top-0 left-0 w-screen p-2 sm:p-4 md:p-5 flex justify-end">
+    <div className="absolute z-20 top-0 left-0 w-screen p-2 sm:p-4 md:p-5 flex flex-col justify-end items-end gap-4">
       <Card className="py-2 px-2 sm:px-4 md:px-6 flex w-fit space-x-3 sm:space-x-4 md:space-x-5 border-saffron bg-white">
         <div className="flex items-center justify-center space-x-2 text-mnGreen">
           <FontAwesomeIcon icon={faMap} />

@@ -8,8 +8,6 @@ import {
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { mantaSepoliaTestnet } from "viem/chains";
-import { FUNCTION_NAME } from "@/utils/constant";
-import { BOKWGeoABI } from "@/abis/BOKWGeoABI";
 
 interface TypedNextApiRequest extends NextApiRequest {
   query: {
@@ -35,6 +33,7 @@ export default async function handler(
     to: player as `0x${string}`,
     value: parseUnits("0.08", 18),
   });
+
   console.log("claimGas hash", hash);
 
   const receipt = await walletClient.waitForTransactionReceipt({ hash });

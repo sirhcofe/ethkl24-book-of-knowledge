@@ -203,7 +203,7 @@ const Questions = ({
     if (result !== null) {
       setTimeout(() => {
         setPromptObj(undefined);
-        setQuestionNum(questionNum + 1);
+        setQuestionNum((prev) => prev + 1);
         setSelectedAns("");
         setResult(null);
         console.log("Reseting states");

@@ -3,7 +3,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Card from "../Card";
 import {
+  faCity,
   faMap,
+  faNotesMedical,
   faRightFromBracket,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
@@ -12,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { executePlayGame } from "@/utils/contractMethods";
 import { getPlayGameResult } from "@/graphql/getPrompt";
 import LoadingAnimation from "../LoadingAnimation";
+import { faEthereum } from "@fortawesome/free-brands-svg-icons";
 
 const containerVariant = {
   hidden: {},
@@ -152,7 +155,7 @@ const Contents = () => {
             >
               <Card
                 className="bg-saffron w-full py-2"
-                onClick={() => setSelectedModal("subject-2")}
+                onClick={() => setSelectedModal("epidemiology")}
               >
                 <p className="font-chewy text-2xl sm:text-3xl md:text-4xl text-black text-center">
                   Epidemiology
@@ -167,7 +170,7 @@ const Contents = () => {
             >
               <Card
                 className="bg-saffron w-full py-2"
-                onClick={() => setSelectedModal("subject-3")}
+                onClick={() => setSelectedModal("ethereum")}
               >
                 <p className="font-chewy text-2xl sm:text-3xl md:text-4xl text-black text-center">
                   Ethereum
@@ -180,7 +183,7 @@ const Contents = () => {
             >
               <Card
                 className="bg-saffron w-full py-2"
-                onClick={() => setSelectedModal("subject-4")}
+                onClick={() => setSelectedModal("city-planning")}
               >
                 <p className="font-chewy text-2xl sm:text-3xl md:text-4xl text-black text-center">
                   City Planning
@@ -202,9 +205,20 @@ const Contents = () => {
               {selectedModal}
             </p>
             <p className="font-bold text-lg">Cost</p>
-            <div className="flex items-center jusitfy-center space-x-2 space-y-2">
-              <p className="font-bold text-lg">50</p>
-              <FontAwesomeIcon icon={faMap} />
+            <div className="flex items-center jusitfy-center space-x-3">
+              <p className="font-bold text-2xl text-center pt-1">50</p>
+              {selectedModal === "geography" && (
+                <FontAwesomeIcon icon={faMap} size="2x" />
+              )}
+              {selectedModal === "epidemiology" && (
+                <FontAwesomeIcon icon={faNotesMedical} size="2x" />
+              )}
+              {selectedModal === "ethereum" && (
+                <FontAwesomeIcon icon={faEthereum} size="2x" />
+              )}
+              {selectedModal === "city-planning" && (
+                <FontAwesomeIcon icon={faCity} size="2x" />
+              )}
             </div>
             <Card
               className="mt-5 h-[56px] sm:h-[60px] md:h-[64px] flex items-center px-4 cursor-pointer bg-mnGreen"

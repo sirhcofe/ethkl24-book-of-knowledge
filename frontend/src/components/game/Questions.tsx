@@ -52,7 +52,7 @@ const Questions = ({
   setIsEnd: () => void;
   coinsEarned: number;
   setCoinsEarned: Dispatch<SetStateAction<number>>;
-  setOuterCurrentGameIndex: Dispatch<SetStateAction<number>>;
+  setOuterCurrentGameIndex: Dispatch<SetStateAction<number | undefined>>;
 }) => {
   const controls = useAnimation();
   const { viemPublicClient, viemWalletClient } = useAuth();

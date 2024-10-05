@@ -69,7 +69,7 @@ const PostGame = ({
   outerCurrentGameIndex,
 }: {
   coinsEarned: number;
-  outerCurrentGameIndex: number;
+  outerCurrentGameIndex: number | undefined;
 }) => {
   const subject = useSearchParams().get("subject");
   const router = useRouter();

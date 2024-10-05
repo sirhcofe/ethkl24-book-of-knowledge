@@ -1,8 +1,7 @@
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 
 const client = new ApolloClient({
-  // uri: "http://localhost:8080/v1/graphql",
-  uri: "https://indexer.bigdevenergy.link/69b99d8/v1/graphql", // TODO: change to Goldsky graphql
+  uri: "https://api.goldsky.com/api/public/project_cm1uotih4v2ow01xxhsav67ml/subgraphs/bananacash-manta-pacific-sepolia/v1/gn",
   cache: new InMemoryCache(),
 });
 

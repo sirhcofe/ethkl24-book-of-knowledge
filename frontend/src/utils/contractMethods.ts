@@ -100,13 +100,15 @@ export const executePlayGame = async (
 };
 
 export const generateQuestion = async (
+  ca: `0x${string}`,
   walletClient: WalletClient,
   publicClient: PublicClient,
   gameIdx: number,
   prompt: string
 ) => {
-  const ca = process.env.NEXT_PUBLIC_BOKWGEO_CA;
   const address = (await walletClient.getAddresses())[0];
+  const fee = await estimateFee(ca, walletClient, publicClient);
+  console.log("Estimated Fee", fee);
 
   const hash = await walletClient.writeContract({
     chain: mantaSepoliaTestnet,
@@ -115,7 +117,7 @@ export const generateQuestion = async (
     abi: JSON.parse(JSON.stringify(BOKWGeoABI)),
     functionName: FUNCTION_NAME.generateQuestion,
     args: [gameIdx, prompt],
-    value: BigInt("11001500106500000"),
+    value: BigInt(fee),
   });
   console.log("GenerateQuestion hash", hash);
 
@@ -123,6 +125,21 @@ export const generateQuestion = async (
   console.log("GenerateQuestion receipt", receipt);
 
   return hash;
+};
+
+const estimateFee = async (
+  ca: `0x${string}`,
+  walletClient: WalletClient,
+  publicClient: PublicClient
+) => {
+  const address = (await walletClient.getAddresses())[0];
+  const fee = await publicClient.readContract({
+    address: ca,
+    abi: BOKWGeoABI,
+    functionName: "estimateFee",
+    args: [BigInt(11)],
+  });
+  return String(fee);
 };
 
 export const getBalanceOf = async (

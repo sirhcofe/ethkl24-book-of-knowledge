@@ -18,22 +18,39 @@ export const questionGenerate = async (
   viemWalletClient: WalletClient,
   viemPublicClient: PublicClient,
   gameIndex: number,
-  subject: string
+  subject: string,
+  historyQuestions: string[]
 ) => {
   let promptRequest = undefined;
   let output = undefined;
+  let subjectQuestions = "";
+
+  if (historyQuestions.length > 0) {
+    const newHistoryQuestions = historyQuestions.map((v) => `'${v}'`);
+    subjectQuestions =
+      questions[subject] +
+      "Don't ask these questions " +
+      newHistoryQuestions.join(" and ") +
+      ". Generate a new single question";
+  } else {
+    subjectQuestions = questions[subject];
+  }
+
+  console.log("subjectQuestions", subjectQuestions);
+
   const genQuestionHash = await generateQuestion(
+    process.env.NEXT_PUBLIC_BOKWGEO_CA as `0x${string}`,
     viemWalletClient!,
     viemPublicClient!,
     gameIndex,
-    questions[subject]
+    subjectQuestions
   );
   while (!promptRequest) {
     console.log("genQuestionHash", genQuestionHash);
     promptRequest = await getPromptResult(genQuestionHash);
     console.log("promptRequest", promptRequest);
 
-    await delay(1000);
+    await delay(2500);
   }
   while (!output) {
     console.log(
@@ -45,7 +62,7 @@ export const questionGenerate = async (
     );
     if (promtRes) output = promtRes.output;
 
-    await delay(1000);
+    await delay(2500);
   }
 
   const promptInfo = parsePrompt(output);

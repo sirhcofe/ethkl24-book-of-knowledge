@@ -113,8 +113,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (web3Auth && web3Auth.connected && web3AuthProvider && !isLoggedIn) {
-      postLoginFlow(web3AuthProvider);
+    if (web3Auth && web3AuthProvider) {
+      if (web3Auth.connected && !isLoggedIn) postLoginFlow(web3AuthProvider);
+      setIsLoading(false);
     }
   }, [web3Auth, web3AuthProvider, isLoggedIn]);
 
@@ -167,7 +168,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const user = await getUserInfo();
     console.log(user);
     setUser(user);
-    setIsLoading(false);
     const address = await RPC.getAccounts(provider);
     // Ethers and paymaster setup
     const ethersProvider = new ethers.providers.Web3Provider(provider);

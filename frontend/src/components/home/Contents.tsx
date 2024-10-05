@@ -29,8 +29,13 @@ const Contents = () => {
   const { isLoading, user, login, logout } = useAuth();
   const [showSubject, setShowSubject] = useState(false);
 
+  const handleLogout = () => {
+    setShowSubject(false);
+    logout();
+  };
+
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-col">
       <AnimatePresence mode="wait">
         {!isLoading &&
           (user ? (
@@ -42,7 +47,10 @@ const Contents = () => {
               variants={containerVariant}
             >
               <motion.div className="flex flex-1">
-                <Card className="w-full py-4 bg-mnGreen flex items-center justify-center cursor-pointer">
+                <Card
+                  className="w-full py-4 bg-mnGreen flex items-center justify-center cursor-pointer"
+                  onClick={() => setShowSubject(true)}
+                >
                   <p className="font-chewy text-3xl sm:text-4xl md:text-[42px] text-white text-center">
                     play
                   </p>
@@ -62,7 +70,7 @@ const Contents = () => {
               >
                 <Card
                   className="w-full h-full flex items-center justify-center bg-jasper cursor-pointer"
-                  onClick={logout}
+                  onClick={handleLogout}
                 >
                   <FontAwesomeIcon icon={faRightFromBracket} size="2x" />
                 </Card>
@@ -88,6 +96,54 @@ const Contents = () => {
             </motion.div>
           ))}
       </AnimatePresence>
+
+      {showSubject && (
+        <motion.div
+          className="w-full flex flex-col items-center space-y-3 mt-8"
+          initial="hidden"
+          animate="visible"
+          variants={containerVariant}
+        >
+          <motion.div
+            className="font-poppins font-medium text-lg sm:text-xl md:text-[22px] text-black"
+            variants={childVariant}
+          >
+            Pick a subject to play!
+          </motion.div>
+          <div className="w-full flex space-x-3">
+            <motion.div className="flex flex-1" variants={childVariant}>
+              <Card className="bg-saffron w-full py-2">
+                <p className="font-chewy text-3xl sm:text-4xl md:text-[42px] text-black text-center">
+                  Subject 1
+                </p>
+              </Card>
+            </motion.div>
+            <motion.div className="flex flex-1" variants={childVariant}>
+              <Card className="bg-saffron w-full py-2">
+                <p className="font-chewy text-3xl sm:text-4xl md:text-[42px] text-black text-center">
+                  Subject 2
+                </p>
+              </Card>
+            </motion.div>
+          </div>
+          <div className="w-full flex space-x-3">
+            <motion.div className="flex flex-1" variants={childVariant}>
+              <Card className="bg-saffron w-full py-2">
+                <p className="font-chewy text-3xl sm:text-4xl md:text-[42px] text-black text-center">
+                  Subject 3
+                </p>
+              </Card>
+            </motion.div>
+            <motion.div className="flex flex-1" variants={childVariant}>
+              <Card className="bg-saffron w-full py-2">
+                <p className="font-chewy text-3xl sm:text-4xl md:text-[42px] text-black text-center">
+                  Subject 4
+                </p>
+              </Card>
+            </motion.div>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 };

@@ -24,7 +24,7 @@ export default function Home() {
 
   return (
     <div
-      className={`${poppins.variable} ${chewy.variable} relative w-screen min-h-screen h-full flex items-center justify-center bg-white overflow-y-scroll`}
+      className="relative w-screen min-h-screen h-full flex items-center justify-center bg-white overflow-y-scroll"
       ref={divRef}
     >
       {scale && (

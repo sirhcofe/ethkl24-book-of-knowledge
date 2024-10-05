@@ -68,9 +68,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         });
 
         const web3AuthAdapter = new AuthAdapter({
-          loginSettings: {
-            mfaLevel: "optional",
-          },
+          //   loginSettings: {
+          //     mfaLevel: "optional",
+          //   },
           adapterSettings: {
             uxMode: UX_MODE.REDIRECT,
             loginConfig: {
@@ -80,28 +80,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 clientId: process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID,
               },
             },
-            mfaSettings: {
-              deviceShareFactor: {
-                enable: true,
-                priority: 1,
-                mandatory: true,
-              },
-              backUpShareFactor: {
-                enable: true,
-                priority: 2,
-                mandatory: false,
-              },
-              socialBackupFactor: {
-                enable: true,
-                priority: 3,
-                mandatory: false,
-              },
-              passwordFactor: {
-                enable: true,
-                priority: 4,
-                mandatory: true,
-              },
-            },
+            // mfaSettings: {
+            //   deviceShareFactor: {
+            //     enable: true,
+            //     priority: 1,
+            //     mandatory: true,
+            //   },
+            //   backUpShareFactor: {
+            //     enable: true,
+            //     priority: 2,
+            //     mandatory: false,
+            //   },
+            //   socialBackupFactor: {
+            //     enable: true,
+            //     priority: 3,
+            //     mandatory: false,
+            //   },
+            //   passwordFactor: {
+            //     enable: true,
+            //     priority: 4,
+            //     mandatory: true,
+            //   },
+            // },
           },
         });
         web3AuthInstance.configureAdapter(web3AuthAdapter);
@@ -119,7 +119,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (web3Auth && web3AuthProvider) {
       if (web3Auth.connected && !isLoggedIn) postLoginFlow(web3AuthProvider);
-      setIsLoading(false);
+      setTimeout(() => {
+        // small timeout to wait for set state to finish before setIsLoading to false
+        setIsLoading(false);
+      }, 300);
     }
   }, [web3Auth, web3AuthProvider, isLoggedIn]);
 

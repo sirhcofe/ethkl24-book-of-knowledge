@@ -15,6 +15,7 @@ import { executePlayGame } from "@/utils/contractMethods";
 import { getPlayGameResult } from "@/graphql/getPrompt";
 import LoadingAnimation from "../LoadingAnimation";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import toast from "react-hot-toast";
 
 const containerVariant = {
   hidden: {},
@@ -52,17 +53,18 @@ const Contents = () => {
   };
 
   const handleLetsGo = async () => {
+    setLetsGoLoading(true);
     const contractAddresses: { [key: string]: string } = {
       ethereum: process.env.NEXT_PUBLIC_BOKWETH_CA as string,
       city_planning: process.env.NEXT_PUBLIC_BOKWCP_CA as string,
       epidemiology: process.env.NEXT_PUBLIC_BOKWEPI_CA as string,
     };
+    toast.loading("Initializing game...", { duration: 4000 });
     const hash = await executePlayGame(
       contractAddresses[selectedModal] as `0x${string}`,
       viemWalletClient!,
       viemPublicClient!
     );
-    setLetsGoLoading(true);
     router.push(`/game?subject=${selectedModal}&hash=${hash}`);
   };
 

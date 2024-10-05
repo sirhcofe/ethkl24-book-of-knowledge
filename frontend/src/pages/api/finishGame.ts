@@ -3,6 +3,7 @@ import {
   createPublicClient,
   createWalletClient,
   http,
+  parseUnits,
   publicActions,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -38,7 +39,11 @@ export default async function handler(
     address: ca as `0x${string}`,
     abi: BOKWGeoABI,
     functionName: "finishGame",
-    args: [player as `0x${string}`, BigInt(gameIdx), BigInt(reward)],
+    args: [
+      player as `0x${string}`,
+      BigInt(gameIdx),
+      BigInt(parseUnits(`${reward}`, 18)),
+    ],
   });
   console.log("FinishGame request", request);
 

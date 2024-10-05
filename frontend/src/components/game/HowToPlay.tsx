@@ -16,8 +16,8 @@ const HowToPlay = ({ setter }: { setter: () => void }) => {
         </p>
         <p className="text-black">
           You will be given{" "}
-          <span className="font-bold">5 multiple choice questions</span>. You
-          have <span className="font-bold">13 seconds</span> to answer them.
+          <span className="font-bold">3 multiple choice questions</span>. You
+          have <span className="font-bold">18 seconds</span> to answer them.
           Answer them correctly within the time limit to earn points!
         </p>
         <Card

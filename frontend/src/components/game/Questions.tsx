@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/hooks";
 import { parsePrompt } from "@/utils/parsePrompt";
 import { questionGenerate } from "@/utils/questionGenerator";
 import { calculateKnowledgeTokenDistribution } from "@/utils/calculateKnowledgeTokenDistribution";
+import toast from "react-hot-toast";
 
 const AnimatedNumber = ({ num }: { num: number }) => {
   const [animate, setAnimate] = useState(false);
@@ -47,10 +48,12 @@ const Questions = ({
   setIsEnd,
   coinsEarned,
   setCoinsEarned,
+  setOuterCurrentGameIndex,
 }: {
   setIsEnd: () => void;
   coinsEarned: number;
   setCoinsEarned: Dispatch<SetStateAction<number>>;
+  setOuterCurrentGameIndex: Dispatch<SetStateAction<number>>;
 }) => {
   const controls = useAnimation();
   const { viemPublicClient, viemWalletClient } = useAuth();
@@ -88,7 +91,10 @@ const Questions = ({
 
         await delay(2500);
       }
+
       setCurrentGameIndex(playGameRes.gameIndex);
+      setOuterCurrentGameIndex(playGameRes.gameIndex);
+      toast.loading("Generating questions...", { duration: 4000 });
       const promptInfo = await questionGenerate(
         viemWalletClient!,
         viemPublicClient!,
@@ -207,7 +213,7 @@ const Questions = ({
         setSelectedAns("");
         setResult(null);
         console.log("Reseting states");
-      }, 4000);
+      }, 6000);
     }
   }, [result]);
 
@@ -237,7 +243,7 @@ const Questions = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <div className="w-[660px] h-fit flex flex-col rounded-full p-[2px]">
+          <div className="w-[660px] max-w-[90%] h-fit flex flex-col rounded-full p-[2px]">
             <div className="w-full bg-background rounded-full p-1">
               <Progress.Root className="relative w-full h-2 rounded-full bg-[#3f414e] overflow-hidden">
                 <motion.div

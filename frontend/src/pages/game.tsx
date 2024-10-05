@@ -7,6 +7,7 @@ import { useState } from "react";
 export default function Game() {
   const [isInitial, setIsInitial] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
+  const [outerCurrentGameIndex, setOuterCurrentGameIndex] = useState<number>();
 
   const [coinsEarned, setCoinsEarned] = useState(0);
 
@@ -21,9 +22,15 @@ export default function Game() {
               setIsEnd={() => setIsEnd(true)}
               coinsEarned={coinsEarned}
               setCoinsEarned={setCoinsEarned}
+              setOuterCurrentGameIndex={setOuterCurrentGameIndex}
             />
           ))}
-        {isEnd && <PostGame coinsEarned={coinsEarned} />}
+        {isEnd && (
+          <PostGame
+            coinsEarned={coinsEarned}
+            outerCurrentGameIndex={outerCurrentGameIndex}
+          />
+        )}
       </AnimatePresence>
     </div>
   );

@@ -7,7 +7,7 @@ import {
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { mantaSepoliaTestnet } from "viem/chains";
-import BOKWGeoABI from "../../abis/BOKWGeoABI.json";
+import BOKWGeoABI from "../../abis/BOKWGeoABI";
 import { FUNCTION_NAME } from "@/utils/constant";
 
 interface TypedNextApiRequest extends NextApiRequest {

@@ -26,8 +26,10 @@ const parseAnswer = (answerLine: string): "a" | "b" | "c" | "d" => {
   return answer;
 };
 
-const parsePrompt = (prompt: string): Prompt => {
-  const splitUpArray = prompt.split("\n");
+export const parsePrompt = (prompt: string): Prompt => {
+  const cleanPrompt = prompt.replace(/\*/g, "");
+  console.log("cleanPrompt", cleanPrompt);
+  const splitUpArray = cleanPrompt.split("\n");
   const clearArray = splitUpArray.filter((element) => element !== "");
   const question = clearArray.filter((element) => element.endsWith("?"))[0];
   const choicesArray = clearArray.filter(
@@ -38,6 +40,12 @@ const parsePrompt = (prompt: string): Prompt => {
     element.includes("Answer:")
   )[0];
 
+  console.log({
+    question: question,
+    choices: parseChoices(choicesArray),
+    answer: parseAnswer(answerLine),
+  });
+
   return {
     question: question,
     choices: parseChoices(choicesArray),
@@ -45,7 +53,18 @@ const parsePrompt = (prompt: string): Prompt => {
   };
 };
 
-// const reply =
+// const reply = "Here's a MCQ question on geography:\n";
+// "\n" +
+//   "**Question:** Which of the following rivers flows through the Grand Canyon?\n" +
+//   "\n" +
+//   "**A)** Colorado River\n" +
+//   "**B)** Missouri River\n" +
+//   "**C)** Mississippi River\n" +
+//   "**D)** Rio Grande\n" +
+//   "\n" +
+//   "**Answer:** **A)** Colorado River\n" +
+//   "\n" +
+//   "The Colorado River is the primary river that flows through the Grand Canyon, which is a famous natural wonder located in Arizona, USA.\n" +
 //   "Here's another MCQ question on geography:\n" +
 //   "\n" +
 //   "What is the world's largest river by discharge volume?\n" +
@@ -56,4 +75,4 @@ const parsePrompt = (prompt: string): Prompt => {
 //   "D) Mississippi River\n" +
 //   "Answer: A) Amazon River";
 
-// parsePrompt(reply);
+// console.log(parsePrompt(reply));

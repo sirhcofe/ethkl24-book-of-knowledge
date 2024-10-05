@@ -4,6 +4,15 @@ import LoadingAnimation from "../LoadingAnimation";
 import { motion, useAnimation } from "framer-motion";
 import Card from "../Card";
 import * as Progress from "@radix-ui/react-progress";
+import { useSearchParams } from "next/navigation";
+import {
+  getPlayGameResult,
+  getPromptResult,
+  getPromptUpdated,
+} from "@/graphql/getPrompt";
+import { generateQuestion } from "@/utils/contractMethods";
+import { useAuth } from "@/hooks/hooks";
+import { parsePrompt } from "@/utils/parsePrompt";
 
 const mockQuestion = {
   question: "why are you gae",
@@ -16,21 +25,83 @@ const mockQuestion = {
   answer: "a",
 } as Prompt;
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const Questions = () => {
   const controls = useAnimation();
+  const { viemPublicClient, viemWalletClient } = useAuth();
   const [promptObj, setPromptObj] = useState<Prompt | undefined>(undefined);
   const [questionNum, setQuestionNum] = useState(1);
   const [selectedAns, setSelectedAns] = useState("");
   const [result, setResult] = useState<boolean | null>(null);
+  const [currentGameIndex, setCurrentGameIndex] = useState<number>();
+
+  const txHash = useSearchParams().get("hash");
+  const subject = useSearchParams().get("subject");
+
+  const questions: { [key: string]: string } = {
+    geography:
+      "give me one 4 choices MCQ question on the subject geography with answer.",
+  };
+
+  const contractAddresses: { [key: string]: string } = {
+    geography: process.env.NEXT_PUBLIC_BOKWGEO_CA as string,
+  };
 
   /**
    * TODO: REMOVE ONCE WE CAN GET PROMPT DATA FROM SC
    */
+
   useEffect(() => {
-    setTimeout(() => {
-      setPromptObj(mockQuestion);
-    }, 1000);
-  }, []);
+    if (!txHash || !subject) return;
+
+    const initGame = async () => {
+      let output: string = "";
+      let playGameRes = undefined;
+      let promptRequest = undefined;
+      while (!playGameRes) {
+        playGameRes = await getPlayGameResult(txHash);
+        console.log("playGameRes", playGameRes);
+
+        await delay(1000);
+      }
+      setCurrentGameIndex(playGameRes.gameIndex);
+      const genQuestionHash = await generateQuestion(
+        viemWalletClient!,
+        viemPublicClient!,
+        playGameRes.gameIndex,
+        questions[subject]
+      );
+      while (!promptRequest) {
+        console.log("genQuestionHash", genQuestionHash);
+        promptRequest = await getPromptResult(genQuestionHash);
+        console.log("promptRequest", promptRequest);
+
+        await delay(1000);
+      }
+      while (!output) {
+        console.log(
+          `getPromptUpdated(${promptRequest.requestId}, ${contractAddresses[subject]})`
+        );
+        const promtRes = await getPromptUpdated(
+          promptRequest.requestId,
+          contractAddresses[subject]
+        );
+        if (promtRes) output = promtRes.output;
+
+        await delay(1000);
+      }
+
+      const promptInfo = parsePrompt(output);
+      setPromptObj(promptInfo);
+    };
+
+    initGame();
+
+    // setTimeout(() => {
+    //   setPromptObj(mockQuestion);
+    // }, 1000);
+  }, [txHash, subject]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: any) => {
@@ -55,7 +126,8 @@ const Questions = () => {
     if (result !== null) return;
     controls.stop();
     setSelectedAns(click);
-    if (click === promptObj?.answer) {
+    console.log(`${click} === ${promptObj?.answer.toLowerCase()}`);
+    if (click.toLowerCase() === promptObj?.answer.toLowerCase()) {
       setResult(true);
     } else {
       setResult(false);

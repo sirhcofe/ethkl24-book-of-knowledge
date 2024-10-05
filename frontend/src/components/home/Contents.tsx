@@ -9,6 +9,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { executePlayGame } from "@/utils/contractMethods";
+import { getPlayGameResult } from "@/graphql/getPrompt";
 
 const containerVariant = {
   hidden: {},
@@ -31,7 +33,8 @@ const childVariant = {
 };
 
 const Contents = () => {
-  const { isLoading, user, login, logout } = useAuth();
+  const { isLoading, user, login, logout, viemPublicClient, viemWalletClient } =
+    useAuth();
   const router = useRouter();
   const [showSubject, setShowSubject] = useState(false);
   const [selectedModal, setSelectedModal] = useState("");
@@ -39,6 +42,11 @@ const Contents = () => {
   const handleLogout = () => {
     setShowSubject(false);
     logout();
+  };
+
+  const handleLetsGo = async () => {
+    const hash = await executePlayGame(viemWalletClient!, viemPublicClient!);
+    router.push(`/game?subject=${selectedModal}&hash=${hash}`);
   };
 
   return (
@@ -118,17 +126,23 @@ const Contents = () => {
             Pick a subject to play!
           </motion.div>
           <div className="w-full flex space-x-3">
-            <motion.div className="flex flex-1" variants={childVariant}>
+            <motion.div
+              className="flex flex-1 hover:cursor-pointer"
+              variants={childVariant}
+            >
               <Card
                 className="bg-saffron w-full py-2"
-                onClick={() => setSelectedModal("subject-1")}
+                onClick={() => setSelectedModal("geography")}
               >
                 <p className="font-chewy text-3xl sm:text-4xl md:text-[42px] text-black text-center">
-                  Subject 1
+                  Geography
                 </p>
               </Card>
             </motion.div>
-            <motion.div className="flex flex-1" variants={childVariant}>
+            <motion.div
+              className="flex flex-1 hover:cursor-pointer"
+              variants={childVariant}
+            >
               <Card
                 className="bg-saffron w-full py-2"
                 onClick={() => setSelectedModal("subject-2")}
@@ -140,7 +154,10 @@ const Contents = () => {
             </motion.div>
           </div>
           <div className="w-full flex space-x-3">
-            <motion.div className="flex flex-1" variants={childVariant}>
+            <motion.div
+              className="flex flex-1 hover:cursor-pointer"
+              variants={childVariant}
+            >
               <Card
                 className="bg-saffron w-full py-2"
                 onClick={() => setSelectedModal("subject-3")}
@@ -150,7 +167,10 @@ const Contents = () => {
                 </p>
               </Card>
             </motion.div>
-            <motion.div className="flex flex-1" variants={childVariant}>
+            <motion.div
+              className="flex flex-1 hover:cursor-pointer"
+              variants={childVariant}
+            >
               <Card
                 className="bg-saffron w-full py-2"
                 onClick={() => setSelectedModal("subject-4")}
@@ -176,12 +196,12 @@ const Contents = () => {
             </p>
             <p className="font-bold text-lg">Cost</p>
             <div className="flex items-center jusitfy-center space-x-2 space-y-2">
-              <p className="font-bold text-lg">0</p>
+              <p className="font-bold text-lg">50</p>
               <FontAwesomeIcon icon={faMap} />
             </div>
             <Card
               className="mt-5 py-2 px-4 cursor-pointer bg-mnGreen"
-              onClick={() => router.push(`/game?subject=${selectedModal}`)}
+              onClick={() => handleLetsGo()}
             >
               <p className="font-chewy text-2xl sm:text-3xl md:text-4xl text-white text-center">
                 Let&apos;s Go!

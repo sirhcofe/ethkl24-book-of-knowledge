@@ -4,6 +4,11 @@ import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 const client = new ApolloClient({
   uri: "https://api.goldsky.com/api/public/project_cm1uotih4v2ow01xxhsav67ml/subgraphs/bananacash-manta-pacific-sepolia/v1/gn",
   cache: new InMemoryCache(),
+  defaultOptions: {
+    query: {
+      fetchPolicy: "no-cache",
+    },
+  },
 });
 
 export const PLAY_GAMES_QUERY = gql`
@@ -53,8 +58,10 @@ export const PROMPTS_REQUESTED_QUERY = gql`
 `;
 
 export const PROMPTS_UPDATED_QUERY = gql`
-  query ($transactionHash: String!) {
-    promptsUpdateds(where: { transactionHash__contains: $transactionHash }) {
+  query ($requestId: String!, $contractId: String!) {
+    promptsUpdateds(
+      where: { contractId__contains_nocase: $contractId, requestId: $requestId }
+    ) {
       id
       block_number
       timestamp_
@@ -66,6 +73,23 @@ export const PROMPTS_UPDATED_QUERY = gql`
     }
   }
 `;
+
+async function getTransactionInfoByContract(
+  requestId: string,
+  contractId: string,
+  query: any
+) {
+  try {
+    const { data } = await client.query({
+      query: query,
+      variables: { requestId, contractId },
+    });
+    return data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+}
 
 async function getTransactionInfo(transactionHash: string, query: any) {
   try {
@@ -93,6 +117,32 @@ const promptsUpdated =
 //   .then((data) => console.log("Data:", data))
 //   .catch((error) => console.error(error));
 
+// getPromptResult(promptsRequested, PROMPTS_REQUESTED_QUERY);
+
+type playGameType = {
+  __typename: string;
+  id: string;
+  block_number: string;
+  timestamp_: string;
+  transactionHash_: string;
+  contractId_: string;
+  player: string;
+  gameIndex: number;
+  subject: string;
+};
+
+export const getPlayGameResult = async (
+  transactionHash: string
+): Promise<playGameType> => {
+  return getTransactionInfo(transactionHash, PLAY_GAMES_QUERY)
+    .then((data) => {
+      return data.playGames[0];
+    })
+    .catch((error) => {
+      console.error(error);
+      throw error;
+    });
+};
 type promptRequestsType = {
   __typename: string;
   id: string;
@@ -106,12 +156,43 @@ type promptRequestsType = {
   prompt: string;
 };
 
-const getPromptResult = async (
+export const getPromptResult = async (
   promptsRequested: string
 ): Promise<promptRequestsType> => {
   return getTransactionInfo(promptsRequested, PROMPTS_REQUESTED_QUERY)
     .then((data) => {
+      console.log("in getpromptresult", data);
       return data.promptRequests[0]; // returning the data
+    })
+    .catch((error) => {
+      console.error(error);
+      throw error; // re-throwing the error if needed
+    });
+};
+
+type promptUpdatedType = {
+  __typename: string;
+  id: string;
+  block_number: string;
+  timestamp_: string;
+  transactionHash_: string;
+  contractId_: string;
+  requestId: string;
+  output: string;
+  callbackData: string;
+};
+
+export const getPromptUpdated = async (
+  requestId: string,
+  contractId: string
+): Promise<promptUpdatedType> => {
+  return getTransactionInfoByContract(
+    requestId,
+    contractId,
+    PROMPTS_UPDATED_QUERY
+  )
+    .then((data) => {
+      return data.promptsUpdateds[0]; // returning the data
     })
     .catch((error) => {
       console.error(error);
@@ -131,7 +212,7 @@ type finishGamesType = {
   reward: string;
 };
 
-const getFinishGames = async (
+export const getFinishGames = async (
   promptsRequested: string
 ): Promise<finishGamesType> => {
   let queryResult: any = [];
@@ -147,9 +228,9 @@ const getFinishGames = async (
 };
 
 // getPromptResult(promptsRequested, PROMPTS_REQUESTED_QUERY);
-const run = async () => {
-  const result = await getPromptResult(promptsRequested);
-  console.log(result); // This will log the resolved data
-};
+// const run = async () => {
+//   const result = await getPromptResult(promptsRequested);
+//   console.log(result); // This will log the resolved data
+// };
 
-run();
+// run();

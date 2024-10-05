@@ -161,12 +161,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const postLoginFlow = async (provider: IProvider | null) => {
     if (!web3Auth?.connected || !provider) {
-      console.log(web3Auth, provider);
       toast.error("Login failed!");
       return;
     }
     const user = await getUserInfo();
-    console.log(user);
     setUser(user);
     const address = await RPC.getAccounts(provider);
     // Ethers and paymaster setup

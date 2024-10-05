@@ -151,7 +151,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const user = await getUserInfo();
     const address = await RPC.getAccounts(provider);
     setUser({ ...user, address });
-    const pClient = createPublicClient({
+    const pClient: any = createPublicClient({
       chain: mantaSepoliaTestnet,
       transport: custom(web3AuthProvider!),
     });

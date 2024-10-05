@@ -50,7 +50,6 @@ const LeaderboardAnimation = ({ win }: { win: boolean }) => {
   const [boxWidth, setBoxWidth] = useState(0);
   const [bigBoxWidth, setBigBoxWidth] = useState(0);
   const { user } = useAuth();
-  const [dummyAdd, setDummyAdd] = useState([]);
 
   const confetti = new JSConfetti();
 

@@ -5,23 +5,17 @@ import { motion, useAnimation } from "framer-motion";
 import Card from "../Card";
 import * as Progress from "@radix-ui/react-progress";
 import { useSearchParams } from "next/navigation";
-import { getPlayGameResult } from "@/graphql/getPrompt";
+import {
+  clientss,
+  getPlayGameResult,
+  getPromptResult,
+  getPromptUpdated,
+} from "@/graphql/getPrompt";
 import { generateQuestion } from "@/utils/contractMethods";
 import { useAuth } from "@/hooks/hooks";
-import { parsePrompt } from "@/utils/parsePrompt";
 import { questionGenerate } from "@/utils/questionGenerator";
 import { calculateKnowledgeTokenDistribution } from "@/utils/calculateKnowledgeTokenDistribution";
-
-const mockQuestion = {
-  question: "why are you gae",
-  choices: {
-    a: "skibidi toilet",
-    b: "rizz",
-    c: "HELP ME",
-    d: "amboutokum",
-  },
-  answer: "a",
-} as Prompt;
+import toast from "react-hot-toast";
 
 const AnimatedNumber = ({ num }: { num: number }) => {
   const [animate, setAnimate] = useState(false);
@@ -53,10 +47,12 @@ const Questions = ({
   setIsEnd,
   coinsEarned,
   setCoinsEarned,
+  setOuterCurrentGameIndex,
 }: {
   setIsEnd: () => void;
   coinsEarned: number;
   setCoinsEarned: Dispatch<SetStateAction<number>>;
+  setOuterCurrentGameIndex: Dispatch<SetStateAction<number | undefined>>;
 }) => {
   const controls = useAnimation();
   const { viemPublicClient, viemWalletClient } = useAuth();
@@ -74,14 +70,6 @@ const Questions = ({
   const txHash = useSearchParams().get("hash");
   const subject = useSearchParams().get("subject");
   const questionDuration: number = 18;
-  const questions: { [key: string]: string } = {
-    geography:
-      "give me one 4 choices MCQ question on the subject geography with answer.",
-  };
-
-  const contractAddresses: { [key: string]: string } = {
-    geography: process.env.NEXT_PUBLIC_BOKWGEO_CA as string,
-  };
 
   useEffect(() => {
     if (!txHash || !subject) return;
@@ -89,12 +77,15 @@ const Questions = ({
     const initGame = async () => {
       let playGameRes = undefined;
       while (!playGameRes) {
-        playGameRes = await getPlayGameResult(txHash);
+        playGameRes = await getPlayGameResult(txHash, clientss[subject]);
         console.log("playGameRes", playGameRes);
 
         await delay(2500);
       }
+
       setCurrentGameIndex(playGameRes.gameIndex);
+      setOuterCurrentGameIndex(playGameRes.gameIndex);
+      toast.loading("Generating questions...", { duration: 4000 });
       const promptInfo = await questionGenerate(
         viemWalletClient!,
         viemPublicClient!,
@@ -209,11 +200,11 @@ const Questions = ({
     if (result !== null) {
       setTimeout(() => {
         setPromptObj(undefined);
-        setQuestionNum(questionNum + 1);
+        setQuestionNum((prev) => prev + 1);
         setSelectedAns("");
         setResult(null);
         console.log("Reseting states");
-      }, 4000);
+      }, 6000);
     }
   }, [result]);
 
@@ -243,7 +234,7 @@ const Questions = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <div className="w-[660px] h-fit flex flex-col rounded-full p-[2px]">
+          <div className="w-[660px] max-w-[90%] h-fit flex flex-col rounded-full p-[2px]">
             <div className="w-full bg-background rounded-full p-1">
               <Progress.Root className="relative w-full h-2 rounded-full bg-[#3f414e] overflow-hidden">
                 <motion.div

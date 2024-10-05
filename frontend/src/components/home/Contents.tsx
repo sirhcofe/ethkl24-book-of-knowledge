@@ -15,6 +15,7 @@ import { executePlayGame } from "@/utils/contractMethods";
 import { getPlayGameResult } from "@/graphql/getPrompt";
 import LoadingAnimation from "../LoadingAnimation";
 import { faEthereum } from "@fortawesome/free-brands-svg-icons";
+import toast from "react-hot-toast";
 
 const containerVariant = {
   hidden: {},
@@ -53,7 +54,17 @@ const Contents = () => {
 
   const handleLetsGo = async () => {
     setLetsGoLoading(true);
-    const hash = await executePlayGame(viemWalletClient!, viemPublicClient!);
+    const contractAddresses: { [key: string]: string } = {
+      ethereum: process.env.NEXT_PUBLIC_BOKWETH_CA as string,
+      city_planning: process.env.NEXT_PUBLIC_BOKWCP_CA as string,
+      epidemiology: process.env.NEXT_PUBLIC_BOKWEPI_CA as string,
+    };
+    toast.loading("Initializing game...", { duration: 4000 });
+    const hash = await executePlayGame(
+      contractAddresses[selectedModal] as `0x${string}`,
+      viemWalletClient!,
+      viemPublicClient!
+    );
     router.push(`/game?subject=${selectedModal}&hash=${hash}`);
   };
 
@@ -142,7 +153,7 @@ const Contents = () => {
             >
               <Card
                 className="bg-saffron w-full py-2"
-                onClick={() => setSelectedModal("geography")}
+                // onClick={() => setSelectedModal("geography")}
               >
                 <p className="font-chewy text-2xl sm:text-3xl md:text-4xl text-black text-center">
                   Geography
@@ -196,7 +207,7 @@ const Contents = () => {
 
       {selectedModal && (
         <motion.div
-          className="absolute top-0 left-0 z-30 w-screen h-screen flex items-center justify-center bg-black/80"
+          className="absolute top-0 left-0 z-30 w-screen min:h-screen h-full flex items-center justify-center bg-black/80"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >

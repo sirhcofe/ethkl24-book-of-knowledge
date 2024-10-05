@@ -1,8 +1,13 @@
-import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
+import {
+  ApolloClient,
+  InMemoryCache,
+  NormalizedCacheObject,
+  gql,
+} from "@apollo/client";
 
 // Initialize the Apollo Client
-const client = new ApolloClient({
-  uri: "https://api.goldsky.com/api/public/project_cm1uotih4v2ow01xxhsav67ml/subgraphs/bananacash-manta-pacific-sepolia/v1/gn",
+export const client_ethereum = new ApolloClient({
+  uri: "https://api.goldsky.com/api/public/project_cm1uotih4v2ow01xxhsav67ml/subgraphs/Ethereum-manta-pacific-sepolia/v1/gn",
   cache: new InMemoryCache(),
   defaultOptions: {
     query: {
@@ -10,6 +15,33 @@ const client = new ApolloClient({
     },
   },
 });
+
+export const client_cityplanning = new ApolloClient({
+  uri: "https://api.goldsky.com/api/public/project_cm1uotih4v2ow01xxhsav67ml/subgraphs/CityPlanning-manta-pacific-sepolia/v1/gn",
+  cache: new InMemoryCache(),
+  defaultOptions: {
+    query: {
+      fetchPolicy: "no-cache",
+    },
+  },
+});
+
+export const client_epidemiology = new ApolloClient({
+  uri: "https://api.goldsky.com/api/public/project_cm1uotih4v2ow01xxhsav67ml/subgraphs/Epidemiology-manta-pacific-sepolia/v1/gn",
+  cache: new InMemoryCache(),
+  defaultOptions: {
+    query: {
+      fetchPolicy: "no-cache",
+    },
+  },
+});
+
+export const clientss: { [key: string]: ApolloClient<NormalizedCacheObject> } =
+  {
+    ethereum: client_ethereum,
+    city_planning: client_cityplanning,
+    epidemiology: client_epidemiology,
+  };
 
 export const PLAY_GAMES_QUERY = gql`
   query ($transactionHash: String!) {
@@ -77,7 +109,8 @@ export const PROMPTS_UPDATED_QUERY = gql`
 async function getTransactionInfoByContract(
   requestId: string,
   contractId: string,
-  query: any
+  query: any,
+  client: ApolloClient<NormalizedCacheObject>
 ) {
   try {
     const { data } = await client.query({
@@ -91,7 +124,11 @@ async function getTransactionInfoByContract(
   }
 }
 
-async function getTransactionInfo(transactionHash: string, query: any) {
+async function getTransactionInfo(
+  transactionHash: string,
+  query: any,
+  client: ApolloClient<NormalizedCacheObject>
+) {
   try {
     const { data } = await client.query({
       query: query,
@@ -132,9 +169,10 @@ type playGameType = {
 };
 
 export const getPlayGameResult = async (
-  transactionHash: string
+  transactionHash: string,
+  client: ApolloClient<NormalizedCacheObject>
 ): Promise<playGameType> => {
-  return getTransactionInfo(transactionHash, PLAY_GAMES_QUERY)
+  return getTransactionInfo(transactionHash, PLAY_GAMES_QUERY, client)
     .then((data) => {
       return data.playGames[0];
     })
@@ -157,9 +195,10 @@ type promptRequestsType = {
 };
 
 export const getPromptResult = async (
-  promptsRequested: string
+  promptsRequested: string,
+  client: ApolloClient<NormalizedCacheObject>
 ): Promise<promptRequestsType> => {
-  return getTransactionInfo(promptsRequested, PROMPTS_REQUESTED_QUERY)
+  return getTransactionInfo(promptsRequested, PROMPTS_REQUESTED_QUERY, client)
     .then((data) => {
       console.log("in getpromptresult", data);
       return data.promptRequests[0]; // returning the data
@@ -184,12 +223,14 @@ type promptUpdatedType = {
 
 export const getPromptUpdated = async (
   requestId: string,
-  contractId: string
+  contractId: string,
+  client: ApolloClient<NormalizedCacheObject>
 ): Promise<promptUpdatedType> => {
   return getTransactionInfoByContract(
     requestId,
     contractId,
-    PROMPTS_UPDATED_QUERY
+    PROMPTS_UPDATED_QUERY,
+    client
   )
     .then((data) => {
       return data.promptsUpdateds[0]; // returning the data
@@ -213,10 +254,11 @@ type finishGamesType = {
 };
 
 export const getFinishGames = async (
-  promptsRequested: string
+  promptsRequested: string,
+  client: ApolloClient<NormalizedCacheObject>
 ): Promise<finishGamesType> => {
 
-  return getTransactionInfo(promptsRequested, FINISH_GAMES_QUERY)
+  return getTransactionInfo(promptsRequested, FINISH_GAMES_QUERY, client)
     .then((data) => {
       return data.finishGames[0]; // returning the data
     })

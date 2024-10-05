@@ -11,7 +11,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import LeaderboardAnimation from "./LeaderboardAnimation";
 import Image from "next/image";
 import pepe from "@/../public/assets/pepe.png";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import toast from "react-hot-toast";
+import { Web3AuthContext } from "@/providers/AuthProvider";
+import { Web3AuthContextType } from "@/types/user";
 
 const AnimatedNumber = ({ num }: { num: number }) => {
   const [animate, setAnimate] = useState(false);
@@ -55,9 +58,41 @@ const AnimatedNumber = ({ num }: { num: number }) => {
   );
 };
 
-const PostGame = ({ coinsEarned }: { coinsEarned: number }) => {
+const contractAddresses: { [key: string]: string } = {
+  ethereum: process.env.NEXT_PUBLIC_BOKWETH_CA as string,
+  city_planning: process.env.NEXT_PUBLIC_BOKWCP_CA as string,
+  epidemiology: process.env.NEXT_PUBLIC_BOKWEPI_CA as string,
+};
+
+const PostGame = ({
+  coinsEarned,
+  outerCurrentGameIndex,
+}: {
+  coinsEarned: number;
+  outerCurrentGameIndex: number | undefined;
+}) => {
   const subject = useSearchParams().get("subject");
   const router = useRouter();
+  const { user } = useContext(Web3AuthContext) as Web3AuthContextType;
+
+  useEffect(() => {
+    const claimReward = async () => {
+      const toastId = toast.loading("Claiming reward...");
+      const res = await fetch(
+        `/api/finishGame?player=${
+          user?.address
+        }&gameIdx=${outerCurrentGameIndex}&reward=${coinsEarned}&ca=${
+          contractAddresses[subject as string]
+        }`,
+        { method: "GET" }
+      );
+      toast.dismiss(toastId);
+      if (res.ok) toast.success("Reward claimed", { duration: 4000 });
+      else toast.error("Failed to claimed reward", { duration: 4000 });
+    };
+    if (!user) return;
+    claimReward();
+  }, [user]);
 
   return (
     <motion.div
@@ -77,12 +112,8 @@ const PostGame = ({ coinsEarned }: { coinsEarned: number }) => {
         <p className="font-chewy text-black text-2xl sm:text-3xl md:text-4xl">
           Book of Knowledge
         </p>
-        <div className="flex items-center justify-center space-x-2">
-          {coinsEarned > 50 ? (
-            <p className="text-black pt-1 text-xl">You earned </p>
-          ) : (
-            <p className="text-black pt-1 text-xl">You lost </p>
-          )}
+        <div className="flex items-center justify-center space-x-2 text-black">
+          <p className="text-black pt-1 text-xl">You got </p>
           <AnimatedNumber num={coinsEarned} />
           {subject === "geography" && (
             <FontAwesomeIcon icon={faMap} size="2x" />

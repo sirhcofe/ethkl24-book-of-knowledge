@@ -77,16 +77,16 @@ import { FUNCTION_NAME } from "./constant";
 import { mantaSepoliaTestnet } from "viem/chains";
 
 export const executePlayGame = async (
+  ca: `0x${string}`,
   walletClient: WalletClient,
   publicClient: PublicClient
 ) => {
-  const ca = process.env.NEXT_PUBLIC_BOKWGEO_CA;
   const address = (await walletClient.getAddresses())[0];
 
   const hash = await walletClient.writeContract({
     chain: mantaSepoliaTestnet,
     account: address,
-    address: ca as `0x${string}`,
+    address: ca,
     abi: BOKWGeoABI,
     functionName: "playGame",
     args: [],
@@ -114,9 +114,9 @@ export const generateQuestion = async (
     chain: mantaSepoliaTestnet,
     account: address,
     address: ca as `0x${string}`,
-    abi: JSON.parse(JSON.stringify(BOKWGeoABI)),
-    functionName: FUNCTION_NAME.generateQuestion,
-    args: [gameIdx, prompt],
+    abi: BOKWGeoABI,
+    functionName: "generateQuestion",
+    args: [BigInt(gameIdx), prompt],
     value: BigInt(fee),
   });
   console.log("GenerateQuestion hash", hash);
@@ -155,4 +155,25 @@ export const getBalanceOf = async (
     args: [address],
   });
   return Number(formatUnits(balance, 18));
+};
+
+export const initialMint = async (
+  ca: `0x${string}`,
+  walletClient: WalletClient,
+  publicClient: PublicClient
+) => {
+  const address = (await walletClient.getAddresses())[0];
+  const hash = await walletClient.writeContract({
+    chain: mantaSepoliaTestnet,
+    account: address,
+    address: ca as `0x${string}`,
+    abi: BOKWGeoABI,
+    functionName: "initialMint",
+  });
+  console.log("initialMint hash", hash);
+
+  const receipt = await publicClient.waitForTransactionReceipt({ hash });
+  console.log("initialMint Receipt", receipt);
+
+  return hash;
 };

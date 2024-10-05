@@ -8,15 +8,10 @@ import {
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { mantaSepoliaTestnet } from "viem/chains";
-import { FUNCTION_NAME } from "@/utils/constant";
-import { BOKWGeoABI } from "@/abis/BOKWGeoABI";
 
 interface TypedNextApiRequest extends NextApiRequest {
   query: {
     player: string;
-    gameIdx: string;
-    reward: string;
-    ca: string;
   };
 }
 
@@ -32,26 +27,17 @@ export default async function handler(
   req: TypedNextApiRequest,
   res: NextApiResponse
 ) {
-  const { player, gameIdx, reward, ca } = req.query;
+  const { player } = req.query;
 
-  const { request } = await walletClient.simulateContract({
-    account,
-    address: ca as `0x${string}`,
-    abi: BOKWGeoABI,
-    functionName: "finishGame",
-    args: [
-      player as `0x${string}`,
-      BigInt(gameIdx),
-      BigInt(parseUnits(`${reward}`, 18)),
-    ],
+  const hash = await walletClient.sendTransaction({
+    to: player as `0x${string}`,
+    value: parseUnits("0.08", 18),
   });
-  console.log("FinishGame request", request);
 
-  const hash = await walletClient.writeContract(request);
-  console.log("FinishGame hash", hash);
+  console.log("claimGas hash", hash);
 
   const receipt = await walletClient.waitForTransactionReceipt({ hash });
-  console.log("FinishGame receipt", receipt);
+  console.log("claimGas receipt", receipt);
 
   res.status(200).json({ hash });
 }

@@ -29,7 +29,7 @@ export default async function handler(
 ) {
   const { player } = req.query;
 
-  // @ts-expect-error
+  // @ts-expect-error kzg not needed
   const hash = await walletClient.sendTransaction({
     to: player as `0x${string}`,
     value: parseUnits("0.08", 18),

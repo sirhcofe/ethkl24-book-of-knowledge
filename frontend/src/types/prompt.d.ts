@@ -1,4 +1,4 @@
-type Prompt = {
+export type Prompt = {
   question: string;
   choices: {
     a: string;

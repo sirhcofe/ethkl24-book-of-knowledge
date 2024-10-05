@@ -79,13 +79,18 @@ const PostGame = ({
     const claimReward = async () => {
       const toastId = toast.loading("Claiming reward...");
       const res = await fetch(
-        `/api/finishGame?player=${user.address}&gameIdx=${outerCurrentGameIndex}&reward=${coinsEarned}&ca=${contractAddresses[subject]}`,
+        `/api/finishGame?player=${
+          user?.address
+        }&gameIdx=${outerCurrentGameIndex}&reward=${coinsEarned}&ca=${
+          contractAddresses[subject as string]
+        }`,
         { method: "GET" }
       );
       toast.dismiss(toastId);
       if (res.ok) toast.success("Reward claimed", { duration: 4000 });
       else toast.error("Failed to claimed reward", { duration: 4000 });
     };
+    if (!user) return;
     claimReward();
   }, [user]);
 

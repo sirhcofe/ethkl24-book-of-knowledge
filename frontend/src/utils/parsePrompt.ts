@@ -1,3 +1,5 @@
+import { Prompt } from "@/types/prompt";
+
 const parseChoices = (
   choicesArray: string[]
 ): { a: string; b: string; c: string; d: string } => {

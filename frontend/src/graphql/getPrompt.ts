@@ -93,13 +93,63 @@ const promptsUpdated =
 //   .then((data) => console.log("Data:", data))
 //   .catch((error) => console.error(error));
 
+type promptRequestsType = {
+  __typename: string;
+  id: string;
+  block_number: string;
+  timestamp_: string;
+  transactionHash_: string;
+  contractId_: string;
+  requestId: string;
+  sender: string;
+  modelId: string;
+  prompt: string;
+};
+
 const getPromptResult = async (
-  promptsRequested: string,
-  PROMPTS_REQUESTED_QUERY: any
-) => {
-  getTransactionInfo(promptsRequested, PROMPTS_REQUESTED_QUERY)
-    .then((data) => console.log("Prompt:", data.promptRequests[0].prompt))
-    .catch((error) => console.error(error));
+  promptsRequested: string
+): Promise<promptRequestsType> => {
+  return getTransactionInfo(promptsRequested, PROMPTS_REQUESTED_QUERY)
+    .then((data) => {
+      return data.promptRequests[0]; // returning the data
+    })
+    .catch((error) => {
+      console.error(error);
+      throw error; // re-throwing the error if needed
+    });
+};
+
+type finishGamesType = {
+  __typename: string;
+  id: string;
+  block_number: string;
+  timestamp_: string;
+  transactionHash_: string;
+  contractId_: string;
+  player: string;
+  gameIndex: string;
+  reward: string;
+};
+
+const getFinishGames = async (
+  promptsRequested: string
+): Promise<finishGamesType> => {
+  let queryResult: any = [];
+
+  return getTransactionInfo(promptsRequested, FINISH_GAMES_QUERY)
+    .then((data) => {
+      return data.finishGames[0]; // returning the data
+    })
+    .catch((error) => {
+      console.error(error);
+      throw error; // re-throwing the error if needed
+    });
 };
 
 // getPromptResult(promptsRequested, PROMPTS_REQUESTED_QUERY);
+const run = async () => {
+  const result = await getPromptResult(promptsRequested);
+  console.log(result); // This will log the resolved data
+};
+
+run();

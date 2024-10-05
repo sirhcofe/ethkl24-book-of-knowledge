@@ -97,6 +97,8 @@ export const executePlayGame = async (
   const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
   console.log("PlayGame Receipt", receipt);
+
+  return hash;
 };
 
 export const generateQuestion = async (

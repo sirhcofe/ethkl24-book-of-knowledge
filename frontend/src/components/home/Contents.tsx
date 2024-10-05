@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { executePlayGame } from "@/utils/contractMethods";
+import { getPlayGameResult } from "@/graphql/getPrompt";
 
 const containerVariant = {
   hidden: {},
@@ -44,8 +45,10 @@ const Contents = () => {
   };
 
   const handleLetsGo = async () => {
-    await executePlayGame(viemWalletClient!, viemPublicClient!);
-    router.push(`/game?subject=${selectedModal}`);
+    const hash = await executePlayGame(viemWalletClient!, viemPublicClient!);
+    const playGameRes = await getPlayGameResult(hash);
+    console.log(playGameRes);
+    // router.push(`/game?subject=${selectedModal}`);
   };
 
   return (

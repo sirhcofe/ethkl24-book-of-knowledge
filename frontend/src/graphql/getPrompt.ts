@@ -93,13 +93,15 @@ const promptsUpdated =
 //   .then((data) => console.log("Data:", data))
 //   .catch((error) => console.error(error));
 
-const getPromptResult = async (
-  promptsRequested: string,
-  PROMPTS_REQUESTED_QUERY: any
-) => {
+export const getPromptResult = async (promptsRequested: string) => {
   getTransactionInfo(promptsRequested, PROMPTS_REQUESTED_QUERY)
     .then((data) => console.log("Prompt:", data.promptRequests[0].prompt))
     .catch((error) => console.error(error));
 };
 
 // getPromptResult(promptsRequested, PROMPTS_REQUESTED_QUERY);
+
+export const getPlayGameResult = async (transactionHash: string) => {
+  const res = await getTransactionInfo(transactionHash, PLAY_GAMES_QUERY);
+  return res;
+};

@@ -6,6 +6,7 @@ import Card from "../Card";
 import * as Progress from "@radix-ui/react-progress";
 import { useSearchParams } from "next/navigation";
 import {
+  clientss,
   getPlayGameResult,
   getPromptResult,
   getPromptUpdated,
@@ -14,17 +15,6 @@ import { generateQuestion } from "@/utils/contractMethods";
 import { useAuth } from "@/hooks/hooks";
 import { parsePrompt } from "@/utils/parsePrompt";
 import { questionGenerate } from "@/utils/questionGenerator";
-
-const mockQuestion = {
-  question: "why are you gae",
-  choices: {
-    a: "skibidi toilet",
-    b: "rizz",
-    c: "HELP ME",
-    d: "amboutokum",
-  },
-  answer: "a",
-} as Prompt;
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -45,22 +35,13 @@ const Questions = () => {
   const txHash = useSearchParams().get("hash");
   const subject = useSearchParams().get("subject");
 
-  const questions: { [key: string]: string } = {
-    geography:
-      "give me one 4 choices MCQ question on the subject geography with answer.",
-  };
-
-  const contractAddresses: { [key: string]: string } = {
-    geography: process.env.NEXT_PUBLIC_BOKWGEO_CA as string,
-  };
-
   useEffect(() => {
     if (!txHash || !subject) return;
 
     const initGame = async () => {
       let playGameRes = undefined;
       while (!playGameRes) {
-        playGameRes = await getPlayGameResult(txHash);
+        playGameRes = await getPlayGameResult(txHash, clientss[subject]);
         console.log("playGameRes", playGameRes);
 
         await delay(2500);

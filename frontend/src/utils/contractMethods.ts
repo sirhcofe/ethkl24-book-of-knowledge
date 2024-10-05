@@ -77,16 +77,16 @@ import { FUNCTION_NAME } from "./constant";
 import { mantaSepoliaTestnet } from "viem/chains";
 
 export const executePlayGame = async (
+  ca: `0x${string}`,
   walletClient: WalletClient,
   publicClient: PublicClient
 ) => {
-  const ca = process.env.NEXT_PUBLIC_BOKWGEO_CA;
   const address = (await walletClient.getAddresses())[0];
 
   const hash = await walletClient.writeContract({
     chain: mantaSepoliaTestnet,
     account: address,
-    address: ca as `0x${string}`,
+    address: ca,
     abi: BOKWGeoABI,
     functionName: "playGame",
     args: [],

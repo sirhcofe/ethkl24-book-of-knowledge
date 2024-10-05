@@ -45,7 +45,16 @@ const Contents = () => {
   };
 
   const handleLetsGo = async () => {
-    const hash = await executePlayGame(viemWalletClient!, viemPublicClient!);
+    const contractAddresses: { [key: string]: string } = {
+      ethereum: process.env.NEXT_PUBLIC_BOKWETH_CA as string,
+      city_planning: process.env.NEXT_PUBLIC_BOKWCP_CA as string,
+      epidemiology: process.env.NEXT_PUBLIC_BOKWEPI_CA as string,
+    };
+    const hash = await executePlayGame(
+      contractAddresses[selectedModal] as `0x${string}`,
+      viemWalletClient!,
+      viemPublicClient!
+    );
     router.push(`/game?subject=${selectedModal}&hash=${hash}`);
   };
 

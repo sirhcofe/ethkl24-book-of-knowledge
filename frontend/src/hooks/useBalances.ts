@@ -10,20 +10,55 @@ export const useBalances = () => {
     Web3AuthContext
   ) as Web3AuthContextType;
 
-  const [bokwGeoBalance, setBokwGeoBalance] = useState(0);
+  const [bokwEthBalance, setBokwEthBlanace] = useState(0);
+  const [bokwEpiBalance, setBokwEpiBalance] = useState(0);
+  const [bokwCpBalance, setBokwCpBalance] = useState(0);
 
   useEffect(() => {
     if (!viemPublicClient || !viemWalletClient) return;
     const loadBalance = async () => {
-      const bokwGeoBalance = await getBalanceOf(
-        process.env.NEXT_PUBLIC_BOKWGEO_CA as `0x${string}`,
+      const bokwEthBalance = await getBalanceOf(
+        process.env.NEXT_PUBLIC_BOKWETH_CA as `0x${string}`,
         viemWalletClient,
         viemPublicClient
       );
-      setBokwGeoBalance(bokwGeoBalance);
+      const bokwEpiBalance = await getBalanceOf(
+        process.env.NEXT_PUBLIC_BOKWEPI_CA as `0x${string}`,
+        viemWalletClient,
+        viemPublicClient
+      );
+      const bokwCpBalance = await getBalanceOf(
+        process.env.NEXT_PUBLIC_BOKWCP_CA as `0x${string}`,
+        viemWalletClient,
+        viemPublicClient
+      );
+      setBokwEthBlanace(bokwEthBalance);
+      setBokwEpiBalance(bokwEpiBalance);
+      setBokwCpBalance(bokwCpBalance);
     };
     loadBalance();
   }, [viemPublicClient, viemWalletClient]);
 
-  return { bokwGeoBalance };
+  const reFetchBalance = async () => {
+    const bokwEthBalance = await getBalanceOf(
+      process.env.NEXT_PUBLIC_BOKWETH_CA as `0x${string}`,
+      viemWalletClient!,
+      viemPublicClient!
+    );
+    const bokwEpiBalance = await getBalanceOf(
+      process.env.NEXT_PUBLIC_BOKWEPI_CA as `0x${string}`,
+      viemWalletClient!,
+      viemPublicClient!
+    );
+    const bokwCpBalance = await getBalanceOf(
+      process.env.NEXT_PUBLIC_BOKWCP_CA as `0x${string}`,
+      viemWalletClient!,
+      viemPublicClient!
+    );
+    setBokwEthBlanace(bokwEthBalance);
+    setBokwEpiBalance(bokwEpiBalance);
+    setBokwCpBalance(bokwCpBalance);
+  };
+
+  return { bokwEthBalance, bokwCpBalance, bokwEpiBalance, reFetchBalance };
 };

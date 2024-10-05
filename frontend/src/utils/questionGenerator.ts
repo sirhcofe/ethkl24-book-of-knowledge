@@ -1,15 +1,25 @@
 import { PublicClient, WalletClient } from "viem";
 import { generateQuestion } from "./contractMethods";
-import { getPromptResult, getPromptUpdated } from "@/graphql/getPrompt";
+import {
+  clientss,
+  getPromptResult,
+  getPromptUpdated,
+} from "@/graphql/getPrompt";
 import { parsePrompt } from "./parsePrompt";
 
 const questions: { [key: string]: string } = {
-  geography:
-    "give me one 4 choices MCQ question on the subject geography with answer.",
+  ethereum:
+    "give me one 4 choices MCQ question on the subject ethereum with answer.",
+  city_planning:
+    "give me one 4 choices MCQ question on the subject city planning with answer.",
+  epidemiology:
+    "give me one 4 choices MCQ question on the subject epidemiology with answer.",
 };
 
 const contractAddresses: { [key: string]: string } = {
-  geography: process.env.NEXT_PUBLIC_BOKWGEO_CA as string,
+  ethereum: process.env.NEXT_PUBLIC_BOKWETH_CA as string,
+  city_planning: process.env.NEXT_PUBLIC_BOKWCP_CA as string,
+  epidemiology: process.env.NEXT_PUBLIC_BOKWEPI_CA as string,
 };
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -39,7 +49,7 @@ export const questionGenerate = async (
   console.log("subjectQuestions", subjectQuestions);
 
   const genQuestionHash = await generateQuestion(
-    process.env.NEXT_PUBLIC_BOKWGEO_CA as `0x${string}`,
+    contractAddresses[subject] as `0x${string}`,
     viemWalletClient!,
     viemPublicClient!,
     gameIndex,
@@ -47,7 +57,7 @@ export const questionGenerate = async (
   );
   while (!promptRequest) {
     console.log("genQuestionHash", genQuestionHash);
-    promptRequest = await getPromptResult(genQuestionHash);
+    promptRequest = await getPromptResult(genQuestionHash, clientss[subject]);
     console.log("promptRequest", promptRequest);
 
     await delay(2500);
@@ -58,7 +68,8 @@ export const questionGenerate = async (
     );
     const promtRes = await getPromptUpdated(
       promptRequest.requestId,
-      contractAddresses[subject]
+      contractAddresses[subject],
+      clientss[subject]
     );
     if (promtRes) output = promtRes.output;
 

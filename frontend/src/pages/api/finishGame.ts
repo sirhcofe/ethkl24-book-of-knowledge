@@ -7,18 +7,19 @@ import {
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { mantaSepoliaTestnet } from "viem/chains";
-import BOKWGeoABI from "../../abis/BOKWGeoABI";
 import { FUNCTION_NAME } from "@/utils/constant";
+import { BOKWGeoABI } from "@/abis/BOKWGeoABI";
 
 interface TypedNextApiRequest extends NextApiRequest {
   query: {
     player: string;
     gameIdx: string;
     reward: string;
+    ca: string;
   };
 }
 
-const account = privateKeyToAccount(`0x${process.env.OWNER_PRIVATE_KEY}`);
+const account = privateKeyToAccount(`0x${process.env.OWNER_PRIVATE_KEY_2}`);
 
 const walletClient = createWalletClient({
   account,
@@ -30,11 +31,11 @@ export default async function handler(
   req: TypedNextApiRequest,
   res: NextApiResponse
 ) {
-  const { player, gameIdx, reward } = req.query;
+  const { player, gameIdx, reward, ca } = req.query;
 
   const { request } = await walletClient.simulateContract({
     account,
-    address: process.env.NEXT_PUBLIC_BOKWGEO_CA as `0x${string}`,
+    address: ca as `0x${string}`,
     abi: JSON.parse(JSON.stringify(BOKWGeoABI)),
     functionName: FUNCTION_NAME.finishGame,
     args: [],

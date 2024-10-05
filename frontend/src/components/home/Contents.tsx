@@ -184,7 +184,7 @@ const Contents = () => {
               onClick={() => router.push(`/game?subject=${selectedModal}`)}
             >
               <p className="font-chewy text-2xl sm:text-3xl md:text-4xl text-white text-center">
-                Let's Go!
+                Let&apos;s Go!
               </p>
             </Card>
             <button

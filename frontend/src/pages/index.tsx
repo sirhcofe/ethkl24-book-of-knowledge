@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/hooks";
-import { poppins, chewy } from "./font";
+import { poppins, chewy } from "../../public/font";
 import Card from "@/components/Card";
 import Logo from "@/components/home/Logo";
 import Contents from "@/components/home/Contents";

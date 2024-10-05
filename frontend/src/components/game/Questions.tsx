@@ -1,5 +1,5 @@
 import { Prompt } from "@/types/prompt";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import LoadingAnimation from "../LoadingAnimation";
 import { motion, useAnimation } from "framer-motion";
 import Card from "../Card";
@@ -17,9 +17,41 @@ import { parsePrompt } from "@/utils/parsePrompt";
 import { questionGenerate } from "@/utils/questionGenerator";
 import { calculateKnowledgeTokenDistribution } from "@/utils/calculateKnowledgeTokenDistribution";
 
+const AnimatedNumber = ({ num }: { num: number }) => {
+  const [animate, setAnimate] = useState(false);
+
+  useEffect(() => {
+    // Trigger the animation whenever the number changes
+    setAnimate(true);
+    const timer = setTimeout(() => setAnimate(false), 300); // Reset after the animation
+    return () => clearTimeout(timer);
+  }, [num]);
+
+  return (
+    <motion.div
+      animate={{
+        scale: animate ? 1.5 : 1, // Scale up briefly
+        color: animate ? "#00ff00" : "#000000", // Turn green briefly
+      }}
+      transition={{ duration: 0.3 }}
+      style={{ fontSize: "2rem" }} // Customize font size
+    >
+      {num}
+    </motion.div>
+  );
+};
+
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const Questions = () => {
+const Questions = ({
+  setIsEnd,
+  coinsEarned,
+  setCoinsEarned,
+}: {
+  setIsEnd: () => void;
+  coinsEarned: number;
+  setCoinsEarned: Dispatch<SetStateAction<number>>;
+}) => {
   const controls = useAnimation();
   const { viemPublicClient, viemWalletClient } = useAuth();
   const [promptObj, setPromptObj] = useState<Prompt | undefined>(undefined);
@@ -43,30 +75,6 @@ const Questions = () => {
 
   const contractAddresses: { [key: string]: string } = {
     geography: process.env.NEXT_PUBLIC_BOKWGEO_CA as string,
-  };
-
-  const AnimatedNumber = ({ num }: { num: number }) => {
-    const [animate, setAnimate] = useState(false);
-
-    useEffect(() => {
-      // Trigger the animation whenever the number changes
-      setAnimate(true);
-      const timer = setTimeout(() => setAnimate(false), 300); // Reset after the animation
-      return () => clearTimeout(timer);
-    }, [num]);
-
-    return (
-      <motion.div
-        animate={{
-          scale: animate ? 1.5 : 1, // Scale up briefly
-          color: animate ? "#00ff00" : "#000000", // Turn green briefly
-        }}
-        transition={{ duration: 0.3 }}
-        style={{ fontSize: "2rem" }} // Customize font size
-      >
-        {num}
-      </motion.div>
-    );
   };
 
   useEffect(() => {
@@ -122,6 +130,13 @@ const Questions = () => {
       console.log("Elapsed Time", elapsedTime);
       console.log("Remaining Time", remainingTime);
       setQuestionTimeLeft(remainingTime + questionTimeLeft);
+      setCoinsEarned(
+        calculateKnowledgeTokenDistribution(
+          questionDuration * 3,
+          remainingTime + questionTimeLeft,
+          50
+        )
+      );
       console.log("Question time left", questionTimeLeft);
     }
   }, [result]);
@@ -198,7 +213,10 @@ const Questions = () => {
 
   // wait to show the next question
   useEffect(() => {
-    if (
+    if (questionNum > 3) {
+      console.log("Game Finished!");
+      setIsEnd();
+    } else if (
       questionNum > 1 &&
       promptObj === undefined &&
       nextPromptObj !== undefined
@@ -236,11 +254,12 @@ const Questions = () => {
           </div>
           <p className="font-chewy text-base sm:text-lg md:text-xl text-black text-center">
             <AnimatedNumber
-              num={calculateKnowledgeTokenDistribution(
-                questionDuration * 3,
-                questionTimeLeft,
-                50
-              )}
+              //   num={calculateKnowledgeTokenDistribution(
+              //     questionDuration * 3,
+              //     questionTimeLeft,
+              //     50
+              //   )}
+              num={coinsEarned}
             />
             {"tokens"}
           </p>

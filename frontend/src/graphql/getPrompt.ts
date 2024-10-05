@@ -257,7 +257,6 @@ export const getFinishGames = async (
   promptsRequested: string,
   client: ApolloClient<NormalizedCacheObject>
 ): Promise<finishGamesType> => {
-  let queryResult: any = [];
 
   return getTransactionInfo(promptsRequested, FINISH_GAMES_QUERY, client)
     .then((data) => {

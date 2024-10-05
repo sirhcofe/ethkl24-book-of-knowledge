@@ -11,14 +11,16 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { executePlayGame } from "@/utils/contractMethods";
 import { getPlayGameResult } from "@/graphql/getPrompt";
+import LoadingAnimation from "../LoadingAnimation";
 
 const containerVariant = {
   hidden: {},
-  visible: {
+  visible: (custom: boolean) => ({
     transition: {
-      staggerChildren: 0.15,
+      staggerChildren: 0.2,
+      delayChildren: custom ? 0 : 0.7,
     },
-  },
+  }),
 };
 
 const childVariant = {
@@ -29,6 +31,7 @@ const childVariant = {
   visible: {
     opacity: 1,
     y: 0,
+    transition: { duration: 0.4 },
   },
 };
 
@@ -38,6 +41,7 @@ const Contents = () => {
   const router = useRouter();
   const [showSubject, setShowSubject] = useState(false);
   const [selectedModal, setSelectedModal] = useState("");
+  const [letsGoLoading, setLetsGoLoading] = useState(false);
 
   const handleLogout = () => {
     setShowSubject(false);
@@ -45,6 +49,7 @@ const Contents = () => {
   };
 
   const handleLetsGo = async () => {
+    setLetsGoLoading(true);
     const hash = await executePlayGame(viemWalletClient!, viemPublicClient!);
     router.push(`/game?subject=${selectedModal}&hash=${hash}`);
   };
@@ -56,17 +61,18 @@ const Contents = () => {
           (user ? (
             <motion.div
               className="w-full flex space-x-3"
-              key="logged-in"
+              key="play"
               initial="hidden"
               animate="visible"
               variants={containerVariant}
+              custom={false}
             >
-              <motion.div className="flex flex-1">
+              <motion.div className="flex flex-1" variants={childVariant}>
                 <Card
                   className="w-full py-2 sm:py-3 md:py-4 bg-mnGreen flex items-center justify-center cursor-pointer"
                   onClick={() => setShowSubject(true)}
                 >
-                  <p className="font-chewy text-3xl sm:text-4xl md:text-[42px] text-white text-center">
+                  <p className="font-chewy text-2xl sm:text-3xl md:text-4xl text-white text-center">
                     play
                   </p>
                 </Card>
@@ -118,6 +124,7 @@ const Contents = () => {
           initial="hidden"
           animate="visible"
           variants={containerVariant}
+          custom={true}
         >
           <motion.div
             className="font-medium text-lg sm:text-xl md:text-[22px] text-black"
@@ -134,7 +141,7 @@ const Contents = () => {
                 className="bg-saffron w-full py-2"
                 onClick={() => setSelectedModal("geography")}
               >
-                <p className="font-chewy text-3xl sm:text-4xl md:text-[42px] text-black text-center">
+                <p className="font-chewy text-2xl sm:text-3xl md:text-4xl text-black text-center">
                   Geography
                 </p>
               </Card>
@@ -147,8 +154,8 @@ const Contents = () => {
                 className="bg-saffron w-full py-2"
                 onClick={() => setSelectedModal("subject-2")}
               >
-                <p className="font-chewy text-3xl sm:text-4xl md:text-[42px] text-black text-center">
-                  Subject 2
+                <p className="font-chewy text-2xl sm:text-3xl md:text-4xl text-black text-center">
+                  Epidemiology
                 </p>
               </Card>
             </motion.div>
@@ -162,8 +169,8 @@ const Contents = () => {
                 className="bg-saffron w-full py-2"
                 onClick={() => setSelectedModal("subject-3")}
               >
-                <p className="font-chewy text-3xl sm:text-4xl md:text-[42px] text-black text-center">
-                  Subject 3
+                <p className="font-chewy text-2xl sm:text-3xl md:text-4xl text-black text-center">
+                  Ethereum
                 </p>
               </Card>
             </motion.div>
@@ -175,8 +182,8 @@ const Contents = () => {
                 className="bg-saffron w-full py-2"
                 onClick={() => setSelectedModal("subject-4")}
               >
-                <p className="font-chewy text-3xl sm:text-4xl md:text-[42px] text-black text-center">
-                  Subject 4
+                <p className="font-chewy text-2xl sm:text-3xl md:text-4xl text-black text-center">
+                  City Planning
                 </p>
               </Card>
             </motion.div>
@@ -191,7 +198,7 @@ const Contents = () => {
           animate={{ opacity: 1 }}
         >
           <Card className="relative w-[400px] max-w-[90%] pt-5 pb-7 px-2 sm:px-3 md:px-4 flex flex-col items-center justify-center bg-saffron text-black">
-            <p className="font-chewy text-3xl sm:text-4xl md:text-[42px] text-center mb-5">
+            <p className="font-chewy text-2xl sm:text-3xl md:text-4xl text-center mb-5">
               {selectedModal}
             </p>
             <p className="font-bold text-lg">Cost</p>
@@ -200,12 +207,18 @@ const Contents = () => {
               <FontAwesomeIcon icon={faMap} />
             </div>
             <Card
-              className="mt-5 py-2 px-4 cursor-pointer bg-mnGreen"
-              onClick={() => handleLetsGo()}
+              className="mt-5 h-[56px] sm:h-[60px] md:h-[64px] flex items-center px-4 cursor-pointer bg-mnGreen"
+              onClick={() => {
+                if (!letsGoLoading) handleLetsGo();
+              }}
             >
-              <p className="font-chewy text-2xl sm:text-3xl md:text-4xl text-white text-center">
-                Let&apos;s Go!
-              </p>
+              {letsGoLoading ? (
+                <LoadingAnimation size="md" />
+              ) : (
+                <p className="font-chewy text-2xl sm:text-3xl md:text-4xl text-white text-center">
+                  Let&apos;s Go!
+                </p>
+              )}
             </Card>
             <button
               className="absolute top-2 right-2 py-1 px-2 rounded-full border border-black text-xs"

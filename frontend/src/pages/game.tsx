@@ -1,12 +1,12 @@
 import HowToPlay from "@/components/game/HowToPlay";
+import PostGame from "@/components/game/PostGame";
 import Questions from "@/components/game/Questions";
-import LoadingAnimation from "@/components/LoadingAnimation";
-import { Prompt } from "@/types/prompt";
 import { AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function Game() {
   const [isInitial, setIsInitial] = useState(true);
+  const [isEnd, setIsEnd] = useState(false);
 
   return (
     <div className="w-screen h-screen overflow-hidden items-center justify-center">
@@ -14,8 +14,9 @@ export default function Game() {
         {isInitial ? (
           <HowToPlay setter={() => setIsInitial(false)} />
         ) : (
-          <Questions />
+          <Questions setIsEnd={() => setIsEnd(true)} />
         )}
+        {isEnd && <PostGame />}
       </AnimatePresence>
     </div>
   );

@@ -36,7 +36,7 @@ const CoinInfo = () => {
             className="hover:cursor-pointer"
           >
             <p className="text-mnGreen">
-              {user.address?.slice(0, 7)}...{user.address?.slice(-5) || ""}
+              {user.address?.slice(0, 5)}...{user.address?.slice(-3) || ""}
             </p>
           </div>
         )}

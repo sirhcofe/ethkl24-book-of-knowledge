@@ -96,7 +96,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (web3Auth && web3AuthProvider) {
       if (web3Auth.connected && !isLoggedIn) postLoginFlow(web3AuthProvider);
-      setIsLoading(false);
+      setTimeout(() => {
+        // small timeout to wait for set state to finish before setIsLoading to false
+        setIsLoading(false);
+      }, 300);
     }
   }, [web3Auth, web3AuthProvider, isLoggedIn]);
 

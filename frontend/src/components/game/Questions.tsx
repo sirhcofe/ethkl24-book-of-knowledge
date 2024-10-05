@@ -32,13 +32,14 @@ const Questions = () => {
   const controls = useAnimation();
   const { viemPublicClient, viemWalletClient } = useAuth();
   const [promptObj, setPromptObj] = useState<Prompt | undefined>(undefined);
+  const [nextPromptObj, setNextPromptObj] = useState<Prompt | undefined>(
+    undefined
+  );
   const [questionNum, setQuestionNum] = useState(1);
   const [selectedAns, setSelectedAns] = useState("");
   const [result, setResult] = useState<boolean | null>(null);
   const [currentGameIndex, setCurrentGameIndex] = useState<number>();
-  const [nextPromptObj, setNextPromptObj] = useState<Prompt | undefined>(
-    undefined
-  );
+  const [startTime, setStartTime] = useState(0);
 
   const txHash = useSearchParams().get("hash");
   const subject = useSearchParams().get("subject");
@@ -52,17 +53,11 @@ const Questions = () => {
     geography: process.env.NEXT_PUBLIC_BOKWGEO_CA as string,
   };
 
-  /**
-   * TODO: REMOVE ONCE WE CAN GET PROMPT DATA FROM SC
-   */
-
   useEffect(() => {
     if (!txHash || !subject) return;
 
     const initGame = async () => {
-      let output: string = "";
       let playGameRes = undefined;
-      let promptRequest = undefined;
       while (!playGameRes) {
         playGameRes = await getPlayGameResult(txHash);
         console.log("playGameRes", playGameRes);
@@ -70,32 +65,6 @@ const Questions = () => {
         await delay(1000);
       }
       setCurrentGameIndex(playGameRes.gameIndex);
-      // const genQuestionHash = await generateQuestion(
-      //   viemWalletClient!,
-      //   viemPublicClient!,
-      //   playGameRes.gameIndex,
-      //   questions[subject]
-      // );
-      // while (!promptRequest) {
-      //   console.log("genQuestionHash", genQuestionHash);
-      //   promptRequest = await getPromptResult(genQuestionHash);
-      //   console.log("promptRequest", promptRequest);
-
-      //   await delay(1000);
-      // }
-      // while (!output) {
-      //   console.log(
-      //     `getPromptUpdated(${promptRequest.requestId}, ${contractAddresses[subject]})`
-      //   );
-      //   const promtRes = await getPromptUpdated(
-      //     promptRequest.requestId,
-      //     contractAddresses[subject]
-      //   );
-      //   if (promtRes) output = promtRes.output;
-
-      //   await delay(1000);
-      // }
-
       const promptInfo = await questionGenerate(
         viemWalletClient!,
         viemPublicClient!,
@@ -106,11 +75,9 @@ const Questions = () => {
     };
 
     initGame();
-
-    // setTimeout(() => {
-    //   setPromptObj(mockQuestion);
-    // }, 1000);
   }, [txHash, subject]);
+
+  /****************** warn user from closing/refreshing tab *******************/
 
   useEffect(() => {
     const handleBeforeUnload = (event: any) => {
@@ -127,10 +94,28 @@ const Questions = () => {
     };
   }, []);
 
+  /****************** handle question timer and answer logic ******************/
+
+  // get start time and start timer animation
+  const startAnimation = () => {
+    setStartTime(Date.now());
+    controls.start({ width: "0%" });
+  };
+
+  // stop animation and get remaining time
+  const stopAnimation = () => {
+    controls.stop();
+    const currentTime = Date.now();
+    const elapsedTime = (currentTime - startTime) / 1000;
+    const remainingTime = 13 - elapsedTime;
+    return parseFloat((remainingTime / 13).toFixed(3));
+  };
+
+  // start the timer
   useEffect(() => {
     if (!txHash || !subject) return;
     if (promptObj === undefined) return;
-    controls.start({ width: "0%" });
+    startAnimation();
     if (questionNum >= 3) return;
     const initNextPrompt = async () => {
       const promptInfo = await questionGenerate(
@@ -144,9 +129,11 @@ const Questions = () => {
     initNextPrompt();
   }, [promptObj]);
 
+  // handle choice click
   const handleClick = (click: string) => {
     if (result !== null) return;
-    controls.stop();
+    const remainingTimePct = stopAnimation();
+    console.log("timer", remainingTimePct);
     setSelectedAns(click);
     console.log(`${click} === ${promptObj?.answer.toLowerCase()}`);
     if (click.toLowerCase() === promptObj?.answer.toLowerCase()) {
@@ -156,6 +143,9 @@ const Questions = () => {
     }
   };
 
+  /**************************** post answer logic *****************************/
+
+  // show result and clear question object
   useEffect(() => {
     if (result !== null) {
       setTimeout(() => {
@@ -163,10 +153,22 @@ const Questions = () => {
         setQuestionNum(questionNum + 1);
         setSelectedAns("");
         setResult(null);
-        // Call SC here to get next question?
       }, 4000);
     }
   }, [result]);
+
+  // wait to show the next question
+  useEffect(() => {
+    if (
+      questionNum > 1 &&
+      promptObj === undefined &&
+      nextPromptObj !== undefined
+    ) {
+      const temp = nextPromptObj;
+      setPromptObj(temp);
+      setNextPromptObj(undefined);
+    }
+  }, [questionNum, nextPromptObj]);
 
   return (
     <>

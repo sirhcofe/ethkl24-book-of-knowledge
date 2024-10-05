@@ -91,11 +91,9 @@ export const executePlayGame = async (
     functionName: "playGame",
     args: [],
   });
-
   console.log("PlayGame hash", hash);
 
   const receipt = await publicClient.waitForTransactionReceipt({ hash });
-
   console.log("PlayGame Receipt", receipt);
 
   return hash;
@@ -117,13 +115,14 @@ export const generateQuestion = async (
     abi: JSON.parse(JSON.stringify(BOKWGeoABI)),
     functionName: FUNCTION_NAME.generateQuestion,
     args: [gameIdx, prompt],
+    value: BigInt("11001500106500000"),
   });
-
   console.log("GenerateQuestion hash", hash);
 
   const receipt = await publicClient.waitForTransactionReceipt({ hash });
-
   console.log("GenerateQuestion receipt", receipt);
+
+  return hash;
 };
 
 export const getBalanceOf = async (

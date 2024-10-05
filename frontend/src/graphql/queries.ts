@@ -47,8 +47,8 @@ export const PROMPTS_REQUESTED_QUERY = gql`
 `;
 
 export const PROMPTS_UPDATED_QUERY = gql`
-  query ($transactionHash: String!) {
-    promptsUpdateds(where: { transactionHash__contains: $transactionHash }) {
+  query ($requestId: String!, &contractId: String!) {
+    promptsUpdateds(where: { transactionHash__contains_nocase: $transactionHash, requestId: $requestId }) {
       id
       block_number
       timestamp_

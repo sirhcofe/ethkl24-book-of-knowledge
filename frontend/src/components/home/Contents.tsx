@@ -46,9 +46,7 @@ const Contents = () => {
 
   const handleLetsGo = async () => {
     const hash = await executePlayGame(viemWalletClient!, viemPublicClient!);
-    const playGameRes = await getPlayGameResult(hash);
-    console.log(playGameRes);
-    // router.push(`/game?subject=${selectedModal}`);
+    router.push(`/game?subject=${selectedModal}&hash=${hash}`);
   };
 
   return (
@@ -134,10 +132,10 @@ const Contents = () => {
             >
               <Card
                 className="bg-saffron w-full py-2"
-                onClick={() => setSelectedModal("subject-1")}
+                onClick={() => setSelectedModal("geography")}
               >
                 <p className="font-chewy text-3xl sm:text-4xl md:text-[42px] text-black text-center">
-                  Subject 1
+                  Geography
                 </p>
               </Card>
             </motion.div>

@@ -25,7 +25,7 @@ const mockQuestion = {
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const Questions = () => {
+const Questions = ({ setIsEnd }: { setIsEnd: () => void }) => {
   const controls = useAnimation();
   const { viemPublicClient, viemWalletClient } = useAuth();
   const [promptObj, setPromptObj] = useState<Prompt | undefined>(undefined);
@@ -204,7 +204,10 @@ const Questions = () => {
 
   // wait to show the next question
   useEffect(() => {
-    if (
+    if (questionNum > 3) {
+      console.log("Game Finished!");
+      setIsEnd();
+    } else if (
       questionNum > 1 &&
       promptObj === undefined &&
       nextPromptObj !== undefined

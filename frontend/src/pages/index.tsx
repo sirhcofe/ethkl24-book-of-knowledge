@@ -6,7 +6,6 @@ import Card from "@/components/Card";
 import Logo from "@/components/home/Logo";
 import Contents from "@/components/home/Contents";
 import CoinInfo from "@/components/home/CoinInfo";
-import { Head } from "next/document";
 
 export default function Home() {
   const { user, login, logout, authenticateUser } = useAuth();

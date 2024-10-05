@@ -215,7 +215,6 @@ type finishGamesType = {
 export const getFinishGames = async (
   promptsRequested: string
 ): Promise<finishGamesType> => {
-  let queryResult: any = [];
 
   return getTransactionInfo(promptsRequested, FINISH_GAMES_QUERY)
     .then((data) => {

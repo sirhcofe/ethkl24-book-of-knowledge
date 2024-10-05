@@ -79,7 +79,7 @@ const LeaderboardAnimation = ({ win }: { win: boolean }) => {
                 : { duration: 2, ease: "easeInOut" }
             }
             onAnimationComplete={() => {
-              win && confetti.addConfetti();
+              if (win) confetti.addConfetti();
             }}
           >
             {dummyAddress.map((add: string, index: number) => {
@@ -95,6 +95,7 @@ const LeaderboardAnimation = ({ win }: { win: boolean }) => {
                       : index >= 20 && index <= 27 && { x: 0, y: -72 }
                   }
                   transition={win ? { duration: 3 } : { duration: 2 }}
+                  key={index}
                 >
                   {add}
                 </motion.div>

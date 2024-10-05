@@ -6,15 +6,17 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./AIOracleCallbackReceiver.sol";
 import "./IAIOracle.sol";
 
-contract BOKWGeo is ERC20, Ownable, AIOracleCallbackReceiver {
+contract BOKWCP is ERC20, Ownable, AIOracleCallbackReceiver {
     uint256 public gameIndex;
-    string public subject = "Geography";
+    string public subject = "City Planning";
     // Game ID => Player's address
     mapping (uint256 => address) gameToAddress;
     // requestId => AIOracleRequest
     mapping(uint256 => AIOracleRequest) public requests;
     // modelId => callback gasLimit
     mapping(uint256 => uint64) public callbackGasLimit;
+    // Player => claimed before
+    mapping(address => bool) public initialClaimed;
 
     event PlayGame(address indexed player, uint256 gameIndex, string subject);
     event FinishGame(address indexed player, uint256 gameIndex, uint256 reward);
@@ -34,7 +36,7 @@ contract BOKWGeo is ERC20, Ownable, AIOracleCallbackReceiver {
     }
 
     constructor(address initialOwner, IAIOracle aiOracle)
-        ERC20("BOKW-Geography", "BOKWGEO")
+        ERC20("BOKW-City-Planning", "BOKWCP")
         Ownable(initialOwner)
         AIOracleCallbackReceiver(aiOracle)
     {
@@ -52,9 +54,8 @@ contract BOKWGeo is ERC20, Ownable, AIOracleCallbackReceiver {
         require(transferFrom(msg.sender, address(this), requiredTokens), "Tokens transfered failed");
 
         gameToAddress[gameIndex] = msg.sender;
-        gameIndex++;
-
         emit PlayGame(msg.sender, gameIndex, subject);
+        gameIndex++;
     }
 
     function finishGame(address player, uint256 gameIdx, uint256 reward) external onlyOwner {
@@ -87,5 +88,11 @@ contract BOKWGeo is ERC20, Ownable, AIOracleCallbackReceiver {
 
     function estimateFee(uint256 modelId) public view returns (uint256) {
         return aiOracle.estimateFee(modelId, callbackGasLimit[modelId]);
+    }
+
+    function initialMint() external {
+        require(initialClaimed[msg.sender] == false, "User has claimed initial tokens before");
+        initialClaimed[msg.sender] = true;
+        _mint(msg.sender, 100 ether);
     }
 }

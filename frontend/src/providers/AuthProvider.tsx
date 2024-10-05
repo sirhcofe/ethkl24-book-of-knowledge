@@ -12,15 +12,16 @@ import { Web3AuthNoModal } from "@web3auth/no-modal";
 import { createContext, useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import RPC from "@/utils/ethersRPC";
-import { ethers } from "ethers";
 import {
   createPublicClient,
   createWalletClient,
   custom,
+  GetContractReturnType,
   PublicClient,
   WalletClient,
 } from "viem";
 import { mantaSepoliaTestnet } from "viem/chains";
+import { BOKWGeoABI } from "@/abis/BOKWGeoABI";
 
 // const biconomyConfig = {
 //   biconomyPaymasterApiKey: import.meta.env.VITE_BICONOMY_PAYMASTER_API_KEY,
@@ -38,7 +39,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [viemWalletClient, setViemWalletClient] = useState<WalletClient>();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<Partial<AuthUserInfo>>();
+  const [user, setUser] =
+    useState<Partial<AuthUserInfo & { address: `0x${string}` }>>();
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -68,9 +70,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         });
 
         const web3AuthAdapter = new AuthAdapter({
-          loginSettings: {
-            mfaLevel: "optional",
-          },
           adapterSettings: {
             uxMode: UX_MODE.REDIRECT,
             loginConfig: {
@@ -78,28 +77,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 verifier: "world-id-verifier",
                 typeOfLogin: "jwt",
                 clientId: process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID,
-              },
-            },
-            mfaSettings: {
-              deviceShareFactor: {
-                enable: true,
-                priority: 1,
-                mandatory: true,
-              },
-              backUpShareFactor: {
-                enable: true,
-                priority: 2,
-                mandatory: false,
-              },
-              socialBackupFactor: {
-                enable: true,
-                priority: 3,
-                mandatory: false,
-              },
-              passwordFactor: {
-                enable: true,
-                priority: 4,
-                mandatory: true,
               },
             },
           },
@@ -169,13 +146,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
     const user = await getUserInfo();
-    setUser(user);
     const address = await RPC.getAccounts(provider);
+    setUser({ ...user, address });
     const pClient = createPublicClient({
       chain: mantaSepoliaTestnet,
       transport: custom(web3AuthProvider!),
     });
     setViemPublicClient(pClient);
+
     const wClient = createWalletClient({
       chain: mantaSepoliaTestnet,
       transport: custom(web3AuthProvider!),

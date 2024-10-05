@@ -3,9 +3,15 @@ import { Web3AuthContextType } from "@/types/user";
 import { useContext } from "react";
 
 export const useAuth = () => {
-  const { isLoading, user, login, logout, authenticateUser } = useContext(
-    Web3AuthContext
-  ) as Web3AuthContextType;
+  const {
+    isLoading,
+    user,
+    login,
+    logout,
+    authenticateUser,
+    viemWalletClient,
+    viemPublicClient,
+  } = useContext(Web3AuthContext) as Web3AuthContextType;
 
   return {
     isLoading,
@@ -13,5 +19,7 @@ export const useAuth = () => {
     login,
     logout,
     authenticateUser,
+    viemPublicClient,
+    viemWalletClient,
   };
 };

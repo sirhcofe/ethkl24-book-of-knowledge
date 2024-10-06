@@ -75,6 +75,8 @@ const Questions = ({
     if (!txHash || !subject) return;
 
     const initGame = async () => {
+      if (!txHash || !subject) return;
+      console.log(`Init ${subject} game`);
       let playGameRes = undefined;
       while (!playGameRes) {
         playGameRes = await getPlayGameResult(txHash, clientss[subject]);

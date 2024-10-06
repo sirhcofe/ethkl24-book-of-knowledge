@@ -16,6 +16,7 @@
 ##### Utilising
 
 - [Manta](https://manta.network/)
+- [Scroll](https://scroll.io/)
 - [Ora Protocol](https://www.ora.io/)
 - [Internet Computer Protocol](https://internetcomputer.org/)
 - [World ID](https://worldcoin.org/world-id)
@@ -39,7 +40,7 @@ Based on the knowledge they have in that particular area which is tied to their 
 8. User can see their ranking in the knowledge field compared to others.
 9. Data is on chain and publicly avaialbe for integration of other 3rd party protocols.
 
-## Contract Addresses
+## Contract Addresses (MANTA)
 Ethereum: 0xC08F0E1C93e7c3f3605693770F45c6E15393C5a7
 https://manta-sepolia.explorer.caldera.xyz/address/0xC08F0E1C93e7c3f3605693770F45c6E15393C5a7?tab=contract
 
@@ -49,6 +50,9 @@ https://manta-sepolia.explorer.caldera.xyz/address/0x5B46d92f31c8742C1509F46678F
 epidemiology: 0xEbc1B6228BAd63e1c03150305429C70E9209441A
 https://manta-sepolia.explorer.caldera.xyz/address/0xEbc1B6228BAd63e1c03150305429C70E9209441A?tab=contract 
 
+
+## Contract Addresses (Scroll)
+https://sepolia.scrollscan.com/address/0x3c6c2e3cA16351224195a46eB9895A949ac4dc6E#code
 
 ## Setup:
 
